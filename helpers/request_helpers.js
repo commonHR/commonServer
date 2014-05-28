@@ -3,7 +3,7 @@ var db = require('./db_helpers');
 var twitter = require('./twitter_helpers');
 
 exports.home = function(request, response) {
-  response.redirect('http://www.google.com');	
+  response.redirect('http://www.twitter.com');	
 }
 
 exports.userLogin = function(request, response) {
