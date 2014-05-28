@@ -1,0 +1,2 @@
+[config]
+command = npm install --no-bin-links
