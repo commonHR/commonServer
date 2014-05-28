@@ -15,6 +15,7 @@ request.userLogin({body: "RICEaaron"});
 
 /*         HANDLE REQUESTS           */
 
+app.get('/', request.home)
 app.post('/login', request.userLogin);
 app.get('/search', request.findMatches);
 app.post('/message', request.sendMessage);

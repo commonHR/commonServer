@@ -2,6 +2,10 @@ var app = require('../server');
 var db = require('./db_helpers');
 var twitter = require('./twitter_helpers');
 
+exports.home = function(request, response) {
+  response.redirect('http://www.google.com');	
+}
+
 exports.userLogin = function(request, response) {
   var screenName = request.body;
   twitter.getUserInfo({screenName: screenName}, function(user){
