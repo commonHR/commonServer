@@ -44,8 +44,8 @@ exports.getUserInfo = function(lookupObject, callback) { //object will have eith
     .then(function(response){
       response.getBody();
       var userInfo = JSON.parse(response.body);
-      callback(userInfo);
-      db.createAppUser(userInfo);
+      // callback(userInfo);
+      db.addUser(userInfo);
     });
 };
 
