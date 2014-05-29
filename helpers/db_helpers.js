@@ -94,12 +94,6 @@ exports.updateUserProperty = function (screenName, properties) { //assuming that
 
 }; 
 
-exports.existingUser = function(username) {
-  // needs to return 'user' if in the database
-  // needs to return 'appUser' if an app user
-  // otherwise return undefined
-};
-
 exports.getTwitterInfo = function(screenName) { // this needs to be an object with a screenName key and the screenName as the value
   //sends a get request to the twitter api to get all the user information
 };
