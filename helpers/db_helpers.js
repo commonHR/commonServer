@@ -71,21 +71,31 @@ exports.addUser = function(user, appUser) { //appUser is a boolean indicating wh
 
   console.log(user);
 
-  var query = "MERGE (u {id_str:'RICEaaron'}) ON CREATE SET u.id_str={id_str} RETURN u";
+  // MERGE (u:User { screen_name: "RICEaaron" })
+  // ON MATCH SET u.appUser = 'true' 
+  // ON CREATE SET u.id_str =  '223233', u.name = 'Aaron Rice', u.screen_name = 'RICEaaron', u.description = 'human being', u.app_user = 'false'
+  // return u
+
+  // var screenName = 
+
+
+  var query = "MERGE (u:User {screen_name: {screen_name}}) ON MATCH SET u.appUser = {app_user} ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u"
+  
   var params = {
     'id_str': user.id_str,
     'name': user.name,
     'screen_name': user.screen_name,
     'description': user.description,
     'profile_image_url': user.profile_image_url,
-    'app_user':user.app_user
+    'app_user': (!!appUser),
+    'location': user.location || 'unknown'
   }
 
   db.query(query, params, function (err, results) {
     if ( err ) {
       console.log (err);
     } else {
-      console.log(results);
+      console.log('database updated successfully');
     }
   });
  //    "u.name={data.name}, u.screen_name={data.screen_name}, u.description={data.description}, u.location={data.location}, u.profile_image_url={data.profile_image_url}" +
