@@ -51,7 +51,8 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'description': user.description,
     'profile_image_url': user.profile_image_url,
     'app_user': (!!appUser),
-    'location': user.location || 'unknown'
+    'location': user.location || 'unknown',
+    'latest_activity': timestamp()
   }
 
   db.query(query, params, function (err, results) {
@@ -75,17 +76,14 @@ var addFollowingRelationship = function ( userScreenName, friendScreenName) {
 
   var query = "MATCH (u:User {screen_name: {userName}}), (f:User {screen_name: {friendName}}) CREATE UNIQUE (u)-[:FOLLOWS]->(f)";
 
-  // This is what we want:
-  // MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m) WHERE u.screen_name = "RICEaaron" AND m.app_user = true RETURN COUNT(m), m ORDER BY COUNT(m) DESC
-
   var params = {
     userName: userScreenName,
     friendName: friendScreenName
   };
 
-  db.query(query, params, function (err, results) {
-    if ( err ) {
-      console.log (err);
+  db.query(query, params, function (error, results) {
+    if ( error ) {
+      console.log (error);
     } else {
       console.log(userScreenName + " follows " + friendScreenName);
     }
@@ -103,36 +101,22 @@ exports.getTwitterInfo = function(screenName) { // this needs to be an object wi
 
 exports.findMatches = function(screenName){
 
-  // var query = "MATCH (u:User {screen_name: {screenName}}), (u)-[:FOLLOWS]->()<-[:FOLLOWS]-(f:User) RETURN DISTINCT f"
-
-  var query = "MATCH (u:User {screen_name: {screenName}}), (u)-[:FOLLOWS]->()<-[:FOLLOWS]-(f:User) WHERE (f.app_user = 'true') RETURN COUNT(*), f ORDER BY count(*) DESC LIMIT 10"
-
+  var query = "MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m) WHERE u.screen_name = {screen_name} AND m.app_user = true RETURN COUNT(m), m ORDER BY COUNT(m) DESC"
   var params = {screen_name:screenName};
 
-  db.query(query, params, function (err, results) {
-    if ( err ) {
-      console.log (err);
+  db.query(query, params, function (error, results) {
+    if ( error ) {
+      console.log (error);
     } else {
-      console.log('matches:', results);
+      var matches = results.map(function(result) {
+        return result.m._data.data;
+      });
+      console.log(matches);
     }
   });
 
 }
 
-
-
-// {
-//   "id": 248461595,
-//   "id_str": "248461595",
-//   "name": "Aaron Rice",
-//   "screen_name": "RICEaaron",
-//   "location": "San Francisco, CA",
-//   "description": "string",
-//   "url": null,
-//   "app_user": true,
-//   "bio": "string",
-//   "token": "crazy encrypted string"
-// }
 
 
 

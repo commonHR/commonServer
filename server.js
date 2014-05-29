@@ -14,12 +14,9 @@ console.log('Server now listening on port ' + port);
 
 // twitter.getUserInfo({screenName: 'chrisryanphd'}); 
 // twitter.getUserInfo({screenName: 'RICEaaron'});
-// twitter.getUserInfo({screenName: 'chrisryanphd'});
-// twitter.getUserInfo({screenName: 'joerogan'});
-twitter.getUserInfo({screenName: 'tferriss'});
+// twitter.getUserInfo({screenName: 'duncantrussell'});
 
-
-
+// db.findMatches('RICEaaron');
 
 /*         HANDLE REQUESTS           */
 
