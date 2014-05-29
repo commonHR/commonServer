@@ -75,6 +75,9 @@ var addFollowingRelationship = function ( userScreenName, friendScreenName) {
 
   var query = "MATCH (u:User {screen_name: {userName}}), (f:User {screen_name: {friendName}}) CREATE UNIQUE (u)-[:FOLLOWS]->(f)";
 
+  // This is what we want:
+  // MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m) WHERE u.screen_name = "RICEaaron" AND m.app_user = true RETURN COUNT(m), m ORDER BY COUNT(m) DESC
+
   var params = {
     userName: userScreenName,
     friendName: friendScreenName
