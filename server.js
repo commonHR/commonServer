@@ -17,10 +17,10 @@ twitter.getUserInfo({screenName: "redban"});
 
 /*         HANDLE REQUESTS           */
 
-app.get('/', request.home)
 app.post('/login', request.userLogin);
 app.get('/search', request.findMatches);
 app.post('/message', request.sendMessage);
+app.get('*', request.home)
 
 
 

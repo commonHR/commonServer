@@ -7,6 +7,7 @@ exports.home = function(request, response) {
 }
 
 exports.userLogin = function(request, response) {
+
   var screenName = request.body;
   twitter.getUserInfo({screenName: screenName}, function(user){
     response.send(200, user);
