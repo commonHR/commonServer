@@ -1,5 +1,5 @@
 var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('neo4jdb.cloudapp.net:7474/');
+var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
 var twitter = require('./twitter_helpers');
 var chat = require('./chat_helpers');
 var requestify = require('requestify');
@@ -67,18 +67,18 @@ exports.deleteAppUser = function(screenName){
   //also need to delete a friend node if no other users are following that person
 };
 
-exports.addUser = function(data, appUser) { //appUser is a boolean indicating whether or not this person is a user of our app or not
+exports.addUser = function(user, appUser) { //appUser is a boolean indicating whether or not this person is a user of our app or not
 
-  // console.log(data);
+  console.log(user);
 
   var query = "MERGE (u {id_str:'RICEaaron'}) ON CREATE SET u.id_str={id_str} RETURN u";
   var params = {
-    'id_str': data.id_str,
-    'name': data.name,
-    'screen_name': data.screen_name,
-    'description': data.description,
-    'profile_image_url': data.profile_image_url,
-    'app_user':data.app_user
+    'id_str': user.id_str,
+    'name': user.name,
+    'screen_name': user.screen_name,
+    'description': user.description,
+    'profile_image_url': user.profile_image_url,
+    'app_user':user.app_user
   }
 
   db.query(query, params, function (err, results) {
