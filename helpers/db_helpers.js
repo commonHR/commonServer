@@ -95,9 +95,10 @@ exports.addUser = function(user, appUser) { //appUser is a boolean indicating wh
     if ( err ) {
       console.log (err);
     } else {
-      console.log('database updated successfully');
+      console.log(results);
     }
   });
+
  //    "u.name={data.name}, u.screen_name={data.screen_name}, u.description={data.description}, u.location={data.location}, u.profile_image_url={data.profile_image_url}" +
  //     "RETURN u";
 
