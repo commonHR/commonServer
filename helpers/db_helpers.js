@@ -17,48 +17,14 @@ var dbURL = 'neo4jdb.cloudapp.net:7474/db/data/cypher'
 
 /* QUERY STRINGS */
 
-exports.createAppUser = function(screenName) {
 
-  if ( existingUser(screenName) === 'user' ) {
-    convertToAppUser(screenName);
-  } else if ( existingUser(screenName) = 'appUser' ) {
-    //return nothing
-  } else {
-    addUser(screenName, true);
-    addFriends(screenName);
-  }
+exports.addFriends = function(screenName, friends) {
 
-};
-
-  // check to see if user exists in the database
-
-
-  // assuming that we get a twitter username
-
-  // make a get request to twitter api to get back all user details
-  // take these details and create a new node 
-
-  // make another get request to the twitter API to get all the freinds of the user
-  // for each friend, need to create a new node
-
-exports.convertToAppUser = function(screenName) {
-
-  //find user in the DB and convert the appUser property to true, add token
-  updateUserProperty(screenName, {app_user: true}); // helper method to retrieve token???
-  addFriends(screenName);
-
-}
-
-exports.addFriends = function(screenName) {
-
-  //make API call to twitter to get all user friends and add to DB along with relationsips
-  var friends = twitter.getFriends(screenName);  //assuming that this will return an array of user screenNames
   _.each(friends, function(friend) {
-    if ( !existingUser(friend) ) { 
-      addUser(friend.screen_name)
-      addFollowingRelationship(screenName, friend.screen_name)
-    }
+    addUser(friend);
+    addFollowingRelationship(screenName, friend.screen_name);
   });
+
 };
 
 
@@ -67,20 +33,20 @@ exports.deleteAppUser = function(screenName){
   //also need to delete a friend node if no other users are following that person
 };
 
-exports.addUser = function(user, appUser) { //appUser is a boolean indicating whether or not this person is a user of our app or not
+var addUser = exports.addUser = function(user, appUser) { //appUser is a boolean indicating whether or not this person is a user of our app or not
 
   console.log(user);
 
-  // MERGE (u:User { screen_name: "RICEaaron" })
-  // ON MATCH SET u.appUser = 'true' 
-  // ON CREATE SET u.id_str =  '223233', u.name = 'Aaron Rice', u.screen_name = 'RICEaaron', u.description = 'human being', u.app_user = 'false'
-  // return u
+  var query;
+  var appUserQuery = "MERGE (u:User {screen_name: {screen_name}}) ON MATCH SET u.appUser = {app_user} ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u"
+  var friendQuery = "MERGE (u:User {screen_name: {screen_name}}) ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u"
 
-  // var screenName = 
+  if ( !!appUser ) {
+    query = appUserQuery;
+  } else {
+    query = friendQuery;
+  }
 
-
-  var query = "MERGE (u:User {screen_name: {screen_name}}) ON MATCH SET u.appUser = {app_user} ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u"
-  
   var params = {
     'id_str': user.id_str,
     'name': user.name,
@@ -95,39 +61,33 @@ exports.addUser = function(user, appUser) { //appUser is a boolean indicating wh
     if ( err ) {
       console.log (err);
     } else {
-      console.log(results);
+      console.log('database updated');
     }
   });
 
- //    "u.name={data.name}, u.screen_name={data.screen_name}, u.description={data.description}, u.location={data.location}, u.profile_image_url={data.profile_image_url}" +
- //     "RETURN u";
+  if ( !!appUser ) {
+    twitter.getFriends(user.screen_name);
+  };
 
-  // requestify.request(dbURL, {
-  //   method: 'POST',
-  //   headers: dbHeaders,
-  //   data: {
-  //     'query' : query_string
-  //     'params' : {
-  //       'id_str': data.id_str,
-  //       'name': data.name,
-  //       'screen_name': data.screen_name,
-  //       'description': data.description,
-  //       'profile_image_url': data.profile_image_url,
-  //       'app_user':data.app_user
-  //     }
-  //   }
-  //  })
-  // .then(function(response){
-  //   response.getBody();
-  //   console.log("=================");
-  //   console.log(respose.body);
-  // });
-  
-  //Add user to the if they don't already exist.  Set app_user to true if appUser parameter is passed in.
 };
 
-exports.addFollowingRelationship = function ( userScreenName, friendScreenName) {
-  // Do the things required
+var addFollowingRelationship = function ( userScreenName, friendScreenName) {
+
+  var query = "MATCH (u:User {screen_name: {userName}}), (f:User {screen_name: {friendName}}) CREATE UNIQUE (u)-[:FOLLOWS]->(f)";
+
+  var params = {
+    userName: userScreenName,
+    friendName: friendScreenName
+  };
+
+  db.query(query, params, function (err, results) {
+    if ( err ) {
+      console.log (err);
+    } else {
+      console.log(userScreenName + " follows " + friendScreenName);
+    }
+  });
+
 };
 
 exports.updateUserProperty = function (screenName, properties) { //assuming that properties will be an object containing all properties that need to be updated

@@ -62,20 +62,20 @@ exports.getFriends = function(screenName) {
       var friendsList = JSON.parse(response.body);
       friendsList = friendsList.ids;
       console.log(friendsList);
-      callback(friendsList);
+      callback(screenName, friendsList);
     });
   };
 
-  var getFriendData = function(friendsList) {
+  var getFriendData = function(screenName, friendsList) {
     
     var parseList = function(friendsList){
       for ( var i = 0; i < friendsList.length; i += 100 ) {
         var lookupList = friendsList.slice(i, i + 100);
-        retrieveData(lookupList);
+        retrieveData(screenName, lookupList);
       }
     };
 
-    var retrieveData = function(lookupList) {
+    var retrieveData = function(screenName, lookupList) {
       lookupList = lookupList.join(',');
       requestify.request(getFriendsURL.info + lookupList, {
         method: 'GET', //Twitter API recommends using a POST for lists of larger than 100
@@ -84,8 +84,7 @@ exports.getFriends = function(screenName) {
       .then(function(response){
         response.getBody();
         var friends = JSON.parse(response.body);
-        console.log(friends);
-        // do things with friends - pass to database helper function???
+        db.addFriends(screenName, friends);
       });
     };
 
