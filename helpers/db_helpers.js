@@ -84,7 +84,7 @@ var addFollowingRelationship = function ( userScreenName, friendScreenName) {
     if ( err ) {
       console.log (err);
     } else {
-      // console.log(userScreenName + " follows " + friendScreenName);
+      console.log(userScreenName + " follows " + friendScreenName);
     }
   });
 
