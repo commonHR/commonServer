@@ -35,7 +35,7 @@ exports.deleteAppUser = function(screenName){
 var addUser = exports.addUser = function(user, appUser, relationship) { //appUser is a boolean indicating whether or not this person is a user of our app or not
 
   var query;
-  var appUserQuery = "MERGE (u:User {screen_name: {screen_name}}) ON MATCH SET u.appUser = {app_user} ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u"
+  var appUserQuery = "MERGE (u:User {screen_name: {screen_name}}) ON MATCH SET u.app_user = {app_user} ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u"
   var friendQuery = "MERGE (u:User {screen_name: {screen_name}}) ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u"
 
   if ( !!appUser ) {
@@ -84,7 +84,7 @@ var addFollowingRelationship = function ( userScreenName, friendScreenName) {
     if ( err ) {
       console.log (err);
     } else {
-      console.log(userScreenName + " follows " + friendScreenName);
+      // console.log(userScreenName + " follows " + friendScreenName);
     }
   });
 
@@ -100,7 +100,9 @@ exports.getTwitterInfo = function(screenName) { // this needs to be an object wi
 
 exports.findMatches = function(screenName){
 
-  var query = "MATCH (u:User {screen_name: {screenName}}), (u)-[:FOLLOWS]->()<-[:FOLLOWS]-(f:User) RETURN DISTINCT f"
+  // var query = "MATCH (u:User {screen_name: {screenName}}), (u)-[:FOLLOWS]->()<-[:FOLLOWS]-(f:User) RETURN DISTINCT f"
+
+  var query = "MATCH (u:User {screen_name: {screenName}}), (u)-[:FOLLOWS]->()<-[:FOLLOWS]-(f:User) WHERE (f.app_user = 'true') RETURN COUNT(*), f ORDER BY count(*) DESC LIMIT 10"
 
   var params = {screen_name:screenName};
 
@@ -108,9 +110,7 @@ exports.findMatches = function(screenName){
     if ( err ) {
       console.log (err);
     } else {
-      if ( relationship ) {
-        addFollowingRelationship( relationship.user, relationship.friend );
-      }
+      console.log('matches:', results);
     }
   });
 

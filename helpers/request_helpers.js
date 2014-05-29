@@ -16,7 +16,7 @@ exports.userLogin = function(request, response) {
 
 exports.findMatches = function(request, response) {
   var screenName = request.body.screenName;
-  var location = request.body.location;
+  // var location = request.body.location;
   // query the db
 };
 
