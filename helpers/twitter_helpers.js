@@ -61,7 +61,6 @@ exports.getFriends = function(screenName) {
       response.getBody();
       var friendsList = JSON.parse(response.body);
       friendsList = friendsList.ids;
-      console.log(friendsList);
       callback(screenName, friendsList);
     });
   };

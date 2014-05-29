@@ -21,8 +21,7 @@ var dbURL = 'neo4jdb.cloudapp.net:7474/db/data/cypher'
 exports.addFriends = function(screenName, friends) {
 
   _.each(friends, function(friend) {
-    addUser(friend);
-    addFollowingRelationship(screenName, friend.screen_name);
+    addUser(friend, false, {user: screenName, friend: friend.screen_name});
   });
 
 };
@@ -33,9 +32,7 @@ exports.deleteAppUser = function(screenName){
   //also need to delete a friend node if no other users are following that person
 };
 
-var addUser = exports.addUser = function(user, appUser) { //appUser is a boolean indicating whether or not this person is a user of our app or not
-
-  console.log(user);
+var addUser = exports.addUser = function(user, appUser, relationship) { //appUser is a boolean indicating whether or not this person is a user of our app or not
 
   var query;
   var appUserQuery = "MERGE (u:User {screen_name: {screen_name}}) ON MATCH SET u.appUser = {app_user} ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u"
@@ -61,13 +58,16 @@ var addUser = exports.addUser = function(user, appUser) { //appUser is a boolean
     if ( err ) {
       console.log (err);
     } else {
-      console.log('database updated');
+      if ( relationship ) {
+        addFollowingRelationship( relationship.user, relationship.friend );
+      }
     }
   });
 
   if ( !!appUser ) {
     twitter.getFriends(user.screen_name);
   };
+
 
 };
 
