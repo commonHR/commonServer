@@ -98,7 +98,23 @@ exports.getTwitterInfo = function(screenName) { // this needs to be an object wi
   //sends a get request to the twitter api to get all the user information
 };
 
+exports.findMatches = function(screenName){
 
+  var query = "MATCH (u:User {screen_name: {screenName}}), (u)-[:FOLLOWS]->()<-[:FOLLOWS]-(f:User) RETURN DISTINCT f"
+
+  var params = {screen_name:screenName};
+
+  db.query(query, params, function (err, results) {
+    if ( err ) {
+      console.log (err);
+    } else {
+      if ( relationship ) {
+        addFollowingRelationship( relationship.user, relationship.friend );
+      }
+    }
+  });
+
+}
 
 
 
