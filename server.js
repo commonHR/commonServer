@@ -12,11 +12,11 @@ var port = process.env.PORT || 4568;
 app.listen(port);
 console.log('Server now listening on port ' + port);
 
-// twitter.getUserInfo({screenName: 'chrisryanphd'}); 
-// twitter.getUserInfo({screenName: 'RICEaaron'});
-// twitter.getUserInfo({screenName: 'duncantrussell'});
+// Add app user and all friends to DB
+twitter.getUserInfo({screenName: ''});
 
-db.findMatches('RICEaaron');
+// Find matches using screen_name
+// db.findMatches('RICEaaron');
 
 /*         HANDLE REQUESTS           */
 
