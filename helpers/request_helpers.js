@@ -8,9 +8,11 @@ exports.home = function(request, response) {
 
 exports.userLogin = function(request, response) {
 
-  var screenName = request.body;
+  console.log(request.body);
+
+  var screenName = request.body.screen_name;
   twitter.getUserInfo({screenName: screenName}, function(user){
-    response.send(200, user);
+    response.send(200, 'Loigin success');
   });
 };
 

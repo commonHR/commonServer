@@ -8,9 +8,17 @@ var db = require('./helpers/db_helpers');
 /*          START SERVER             */
 
 var app = express();
+app.use(express.bodyParser());
 var port = process.env.PORT || 4568;
 app.listen(port);
 console.log('Server now listening on port ' + port);
+
+app.use(function(req, res, next){
+  console.log(req.method + ' request at ' + req.url);
+  console.log(req.body);
+  next();
+});
+
 
 // twitter.getUserInfo({screenName: 'chrisryanphd'}); 
 // twitter.getUserInfo({screenName: 'RICEaaron'});
