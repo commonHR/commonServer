@@ -16,7 +16,7 @@ console.log('Server now listening on port ' + port);
 // twitter.getUserInfo({screenName: 'RICEaaron'});
 // twitter.getUserInfo({screenName: 'duncantrussell'});
 
-// db.findMatches('RICEaaron');
+db.findMatches('RICEaaron');
 
 /*         HANDLE REQUESTS           */
 

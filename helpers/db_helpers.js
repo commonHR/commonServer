@@ -11,7 +11,7 @@ var dbHeaders = {
   'Accept': 'application/json; charset=UTF-8',
   'Content-Type': 'application/json'
 };
-var dbURL = 'neo4jdb.cloudapp.net:7474/db/data/cypher'
+var dbURL = 'neo4jdb.cloudapp.net:7474/db/data/cypher';
 
 
 
@@ -35,7 +35,7 @@ exports.deleteAppUser = function(screenName){
 var addUser = exports.addUser = function(user, appUser, relationship) { //appUser is a boolean indicating whether or not this person is a user of our app or not
 
   var query;
-  var appUserQuery = "MERGE (u:User {screen_name: {screen_name}}) ON MATCH SET u.app_user = {app_user} ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u"
+  var appUserQuery = "MERGE (u:User {screen_name: {screen_name}}) ON MATCH SET u.app_user = {app_user}, u.latest_activity = timestamp() ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location}, u.latest_activity = timestamp() RETURN u"
   var friendQuery = "MERGE (u:User {screen_name: {screen_name}}) ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u"
 
   if ( !!appUser ) {
@@ -51,8 +51,7 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'description': user.description,
     'profile_image_url': user.profile_image_url,
     'app_user': (!!appUser),
-    'location': user.location || 'unknown',
-    'latest_activity': timestamp()
+    'location': user.location || 'unknown'
   }
 
   db.query(query, params, function (err, results) {
@@ -67,8 +66,7 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
 
   if ( !!appUser ) {
     twitter.getFriends(user.screen_name);
-  };
-
+  }
 
 };
 
@@ -109,24 +107,12 @@ exports.findMatches = function(screenName){
       console.log (error);
     } else {
       var matches = results.map(function(result) {
-        return result.m._data.data;
+        return [result['COUNT(m)'], result.m._data.data];
       });
       console.log(matches);
     }
   });
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
