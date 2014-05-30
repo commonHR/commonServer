@@ -124,3 +124,28 @@ exports.deleteAppUser = function(screenName){
   //deletes a user node and all relationships if a user decides to delete their account
   //also need to delete a friend node if no other users are following that person
 };
+
+exports.sendMessage = function(message){
+
+  var params = {
+    'text':message.text, 
+    'date':message.date, 
+    'from':message.from, 
+    'to':message.to,
+    'position': 0
+  };
+
+  //check if there are previous messages between the same users
+  //if not create a new message node
+  //else prepend the message to the front of the node
+  var query = "MERGE (m:Message {to:{to}, from:{from}}) ON MATCH SET m.position = {position} ON CREATE SET m.text= {text}, m.to = {to}, m.from = {from}, m.date = {date}, m.position = {position} RETURN m";
+
+  db.query(query, params, function (error, results) {
+    if ( error ) {
+      console.log (error);
+    } else {
+      console.log(results);
+    }
+  });
+
+}

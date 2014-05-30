@@ -24,6 +24,7 @@ exports.findMatches = function(request, response) {
 
 exports.sendMessage = function(request, response) {
   // add message to the db
+  var message = request.body.message;
 };
 
 
