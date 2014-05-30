@@ -19,19 +19,14 @@ app.use(function(req, res, next){
   next();
 });
 
-// db.sendMessage({ to: "ChrisRyanPhd", from: "joerogan", text: "hello hello", timestamp: '1401415688819'})
-db.sendMessage({ to: "RICEaaron", from: "marc0au", text: "message3"});
+// twitter.getUserInfo({screenName: 'RICEaaron'}); 
 
-
-// twitter.getUserInfo({screenName: 'marc0au'}); 
-// twitter.getUserInfo({screenName: 'SamHarrisOrg'});
-// twitter.getUserInfo({screenName: 'duncantrussell'});
-
-// Add app user and all friends to DB
-// twitter.getUserInfo({screenName: ''});
-
-// Find matches using screen_name
-// db.findMatches('RICEaaron');
+// db.sendMessage({ 
+// 	sender: 'RICEaaron', 
+// 	recipient: 'marc0au', 
+// 	text: 'test message 2',
+// 	time: new Date().getTime()
+// });
 
 /*         HANDLE REQUESTS           */
 
