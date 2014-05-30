@@ -56,7 +56,7 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location},',
     'u.latest_activity = timestamp() ON CREATE SET u.id_str= {id_str}, u.name = {name},',
     'u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url},',
-    'u.app_user = {app_user}, u.location = {location}, u.latest_activity = timestamp() RETURN u"'
+    'u.app_user = {app_user}, u.location = {location}, u.latest_activity = timestamp() RETURN u'
   ].join('\n');
                         
   var friendQuery = [ 'MERGE (u:User {id_str: {id_str}})',
