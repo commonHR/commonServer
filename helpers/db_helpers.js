@@ -112,6 +112,7 @@ exports.findMatches = function(screenName){
       });
       console.log(matches);
     }
+    //add callback for the request_helper to send the response back to app
   });
 
 }
@@ -127,6 +128,7 @@ exports.deleteAppUser = function(screenName){
 
 exports.sendMessage = function(message){
 
+  //check if there are previous messages between the same users
   var params = {
     'text':message.text, 
     'date':message.date, 
@@ -135,12 +137,23 @@ exports.sendMessage = function(message){
     'position': 0
   };
 
-  //check if there are previous messages between the same users
+  //var createQuery = "MATCH (a:User {screen_name: {to}}), (b:User {screen_name: {from}}) CREATE UNIQUE (a)-[r:HAS_CONVERSATION]->(b) RETURN r"; 
+  
   //if not create a new message node
   //else prepend the message to the front of the node
-  var query = "MERGE (m:Message {to:{to}, from:{from}}) ON MATCH SET m.position = {position} ON CREATE SET m.text= {text}, m.to = {to}, m.from = {from}, m.date = {date}, m.position = {position} RETURN m";
+  //var query = "MERGE (m:Message {to:{to}, from:{from}}) ON MATCH SET m.position = {position} ON CREATE SET m.text= {text}, m.to = {to}, m.from = {from}, m.date = {date}, m.position = {position} RETURN m";
 
-  db.query(query, params, function (error, results) {
+  var updateQuery = [
+    'MATCH (a:User {to:{to}})-[:HAS_CONVERSATION]->(c:Conversation)<-[:HAS_CONVERSATION]-(b:User {from:{from}})',
+    'WITH c',
+    'MATCH (c)-[r:CONTAINS_MESSAGE]->(m2:Message)',
+    'DELETE r',
+    'WITH c, m2',
+    'CREATE UNIQUE (c)-[:CONTAINS_MESSAGE]->(m:Message {to:{to}, text:{text}, time:{time}})-[:CONTAINS_MESSAGE]->(m2)',
+    'RETURN null'
+  ].join('\n');
+
+  db.query(updateQuery, params, function (error, results) {
     if ( error ) {
       console.log (error);
     } else {
