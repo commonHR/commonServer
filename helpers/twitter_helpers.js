@@ -1,6 +1,6 @@
 /*       MODULE DEPENDENCIES         */
 var requestify = require('requestify');
-var db = require('./db_helpers');
+var user = require('./user_helpers');
 var request = require('./request_helpers');
 var _ = require('underscore');
 
@@ -45,7 +45,7 @@ exports.getUserInfo = function(lookupObject, callback) { //object will have eith
       response.getBody();
       var userInfo = JSON.parse(response.body);
       if ( callback ) callback(userInfo); //callback is response to client with user object
-      db.addUser(userInfo, true);
+      user.addUser(userInfo, true);
     });
 };
 
@@ -59,7 +59,7 @@ exports.getFriends = function(screenName){
     response.getBody();
     var friendsList = JSON.parse(response.body);
     friendsList = friendsList.ids;
-    db.addFriends(screenName, friendsList);
+    user.addFriends(screenName, friendsList);
   });
 };
 

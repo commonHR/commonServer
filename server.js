@@ -2,7 +2,8 @@
 var express = require('express');
 var twitter = require('./helpers/twitter_helpers');
 var request = require('./helpers/request_helpers');
-var db = require('./helpers/db_helpers');
+var user = require('./helpers/user_helpers');
+var chat = require('./helpers/chat_helpers');
 
 
 /*          START SERVER             */
@@ -19,14 +20,23 @@ app.use(function(req, res, next){
   next();
 });
 
-// twitter.getUserInfo({screenName: 'RICEaaron'}); 
+// twitter.getUserInfo({screenName: ''}); 
 
-// db.sendMessage({ 
+// chat.sendMessage({ 
 // 	sender: 'RICEaaron', 
-// 	recipient: 'marc0au', 
-// 	text: 'test message 2',
+// 	recipient: 'duncantrussell', 
+// 	text: 'first message',
 // 	time: new Date().getTime()
 // });
+
+// chat.sendMessage({ 
+// 	sender: 'duncantrussell', 
+// 	recipient: 'RICEaaron', 
+// 	text: 'second message',
+// 	time: new Date().getTime()
+// });
+
+chat.retrieveConversations('RICEaaron');
 
 /*         HANDLE REQUESTS           */
 
