@@ -8,7 +8,7 @@ var db = require('./helpers/db_helpers');
 /*          START SERVER             */
 
 var app = express();
-app.use(express.bodyParser());
+// app.use(express.bodyParser());
 var port = process.env.PORT || 4568;
 app.listen(port);
 console.log('Server now listening on port ' + port);
@@ -19,9 +19,11 @@ app.use(function(req, res, next){
   next();
 });
 
+db.sendMessage({ to: "RICEaaron", from: "marc0au", text: "hello hello", timestamp: '1401415688819'})
+
 
 // twitter.getUserInfo({screenName: 'chrisryanphd'}); 
-// twitter.getUserInfo({screenName: 'RICEaaron'});
+// twitter.getUserInfo({screenName: 'marc0au'});
 // twitter.getUserInfo({screenName: 'duncantrussell'});
 
 // Add app user and all friends to DB

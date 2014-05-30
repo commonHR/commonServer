@@ -129,22 +129,37 @@ exports.deleteAppUser = function(screenName){
 exports.sendMessage = function(message){
 
   //check if there are previous messages between the same users
+
+  var conversationID = [message.to, message.from].sort(function(a,b){return a - b;}).join('');
+
   var params = {
     'text':message.text,
-    'date':message.timestamp, 
-    'from':message.from_id, 
-    'to':message.to_id,
-    'position': 0
+    'time':message.timestamp, 
+    'from':message.from, 
+    'to':message.to,
+    'conversationID': conversationID
   };
 
-  //var createQuery = "MATCH (a:User {screen_name: {to}}), (b:User {screen_name: {from}}) CREATE UNIQUE (a)-[r:HAS_CONVERSATION]->(b) RETURN r"; 
+  conversationQuery = "MATCH (a:User {screen_name: {to}}), (b:User {screen_name: {from}}) CREATE UNIQUE (a)-[:HAS_CONVERSATION]->( c:Conversation {id: {conversationID}} )<-[:HAS_CONVERSATION]-(b) RETURN c"
+
+  db.query(conversationQuery, params, function (error, results) {
+    if ( error ) {
+      console.log (error);
+    } else {
+      console.log(results);
+    }
+  });
+
+
+
+  // var createQuery = "MATCH (a:User {screen_name: {to}}), (b:User {screen_name: {from}}) CREATE UNIQUE (a)-[r:HAS_CONVERSATION]->(b) RETURN r"; 
   
-  //if not create a new message node
-  //else prepend the message to the front of the node
-  //var query = "MERGE (m:Message {to:{to}, from:{from}}) ON MATCH SET m.position = {position} ON CREATE SET m.text= {text}, m.to = {to}, m.from = {from}, m.date = {date}, m.position = {position} RETURN m";
+  // if not create a new message node
+  // else prepend the message to the front of the node
+  // var query = "MERGE (m:Message {to:{to}, from:{from}}) ON MATCH SET m.position = {position} ON CREATE SET m.text= {text}, m.to = {to}, m.from = {from}, m.date = {date}, m.position = {position} RETURN m";
 
   var updateQuery = [
-    'MATCH (a:User {to:{to}})-[:HAS_CONVERSATION]->(c:Conversation)<-[:HAS_CONVERSATION]-(b:User {from:{from}})',
+    'MATCH (a:User)-[:HAS_CONVERSATION]->(c:Conversation {id:{conversationID}})<-[:HAS_CONVERSATION]-(b:User)',
     'WITH c',
     'MATCH (c)-[r:CONTAINS_MESSAGE]->(m2:Message)',
     'DELETE r',
