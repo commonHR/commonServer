@@ -34,7 +34,6 @@ exports.retrieveConversations = function(screenName) {
     if ( error ) {
       console.log (error);
     } else {
-
       var conversations = [];
 
       _.each(results, function(result){
@@ -46,9 +45,8 @@ exports.retrieveConversations = function(screenName) {
         conversation[user] = messages;
         conversations.push(conversation);
       });
-
-      console.log(conversations);
     }
+
   }); 
 
 };

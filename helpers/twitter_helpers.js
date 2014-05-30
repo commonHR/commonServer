@@ -10,12 +10,7 @@ var showUserURL =  {
   id: 'https://api.twitter.com/1.1/users/show.json?user_id='
 }
 
-var getFriendsURL = {
-  list: 'https://api.twitter.com/1.1/friends/ids.json?stringify_ids=true&screen_name=',
-  info: 'https://api.twitter.com/1.1/users/lookup.json?user_id='
-}
-
-var getFriendInfoURL = 'https://api.twitter.com/1.1/friends/list.json?stringify_ids=true&screen_name=';
+var getFriendsURL = 'https://api.twitter.com/1.1/friends/list.json?stringify_ids=true&screen_name=';
 
 var headers = {
   'User-Agent': 'tweetUpApp',
@@ -29,56 +24,44 @@ var headers = {
 
 exports.getUserInfo = function(lookupObject, callback) { //object will have either a screenName or id as key and the corresponding value
 
-    var lookupURL;
-    var lookupValue;
+  var lookupURL;
+  var lookupValue;
 
-    if ( lookupObject.screenName )  {
-      lookupURL = showUserURL.screenName;
-      lookupValue = lookupObject.screenName;
-    } else {
-      lookupURL = showUserURL.id;
-      lookupValue = lookupObject.id;
-    }
-    requestify.request(lookupURL + lookupValue, {
-      method: 'GET',
-      headers: headers,
-     })
-    .then(function(response){
-      response.getBody();
-      var userInfo = JSON.parse(response.body);
-      if ( callback ) callback(userInfo); //callback is response to client with user object
-      user.addUser(userInfo, true);
-    });
-};
+  if ( lookupObject.screenName )  {
+    lookupURL = showUserURL.screenName;
+    lookupValue = lookupObject.screenName;
+  } else {
+    lookupURL = showUserURL.id_str;
+    lookupValue = lookupObject.id_str;
+  }
 
-exports.getFriends = function(screenName){
-
-  requestify.request(getFriendsURL.list + screenName, {
-    method: 'GET', //Twitter API recommends using a POST for lists of larger than 100
+  requestify.request(lookupURL + lookupValue + '&skip_status=true', {
+    method: 'GET',
     headers: headers,
    })
   .then(function(response){
     response.getBody();
-    var friendsList = JSON.parse(response.body);
-    friendsList = friendsList.ids;
-    user.addFriends(screenName, friendsList);
+    userInfo = JSON.parse(response.body);
+    if ( callback ) callback(userInfo); //callback is response to client with user object
+    user.addUser(userInfo, true);
   });
 };
 
-exports.getFriendInfo = function(screenName, cursor){
+
+var getFriends = exports.getFriends = function(screenName, cursor){
 
   cursor = cursor || -1;
 
-  requestify.request(getFriendInfoURL + screenName + '&cursor=' + cursor + '&count=2' + '&skip_status=true', {
+  requestify.request(getFriendsURL + screenName + '&cursor=' + cursor + '&count=200' + '&skip_status=true', {
     method: 'GET',
     headers: headers
   })
   .then(function(response){
     response.getBody();
-    data = JSON.parse(response.body);
-    // send data.users to db helper
+    var data = JSON.parse(response.body);
+    user.addFriendsWithInfo(screenName, data.users);
     if ( data.next_cursor_str !== '0' ) {
-      getFriendInfo(screenName, data.next_cursor_str)
+      getFriends(screenName, data.next_cursor_str);
     }
   });
 

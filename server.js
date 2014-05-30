@@ -20,25 +20,7 @@ app.use(function(req, res, next){
   next();
 });
 
-// twitter.getUserInfo({screenName: ''}); 
-
-// chat.sendMessage({ 
-// 	sender: 'RICEaaron', 
-// 	recipient: 'duncantrussell', 
-// 	text: 'first message',
-// 	time: new Date().getTime()
-// });
-
-// chat.sendMessage({ 
-// 	sender: 'duncantrussell', 
-// 	recipient: 'RICEaaron', 
-// 	text: 'second message',
-// 	time: new Date().getTime()
-// });
-
-// chat.retrieveConversations('RICEaaron');
-
-twitter.getFriendInfo('duncantrussell');
+twitter.getUserInfo({screenName: 'marc0au'});
 
 /*         HANDLE REQUESTS           */
 
