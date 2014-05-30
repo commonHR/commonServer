@@ -12,7 +12,7 @@ exports.userLogin = function(request, response) {
 
   var screenName = request.body.screen_name;
   twitter.getUserInfo({screenName: screenName}, function(user){
-    response.send(200, 'Loigin success');
+    response.send(200, 'Login success');
   });
 };
 
@@ -24,7 +24,12 @@ exports.findMatches = function(request, response) {
 
 exports.sendMessage = function(request, response) {
   // add message to the db
+  console.log(request.body);
+
   var message = request.body.message;
+
+  db.sendMessage(message);
+
 };
 
 

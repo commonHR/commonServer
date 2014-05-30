@@ -128,10 +128,10 @@ exports.deleteAppUser = function(screenName){
 exports.sendMessage = function(message){
 
   var params = {
-    'text':message.text, 
-    'date':message.date, 
-    'from':message.from, 
-    'to':message.to,
+    'text':message.text,
+    'date':message.timestamp, 
+    'from':message.from_id, 
+    'to':message.to_id,
     'position': 0
   };
 
