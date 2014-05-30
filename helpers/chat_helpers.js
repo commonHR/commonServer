@@ -36,16 +36,15 @@ exports.retrieveConversations = function(screenName) {
     } else {
 
       var conversations = [];
-      var temp = {};
 
       _.each(results, function(result){
-        var temp = {};
-        var person = result.other._data.data.screen_name;
+        var conversation = {};
+        var user = result.other._data.data.screen_name;
         var messages = _.map(result.messages, function(message){
           return message._data.data;
         })
-        temp[person] = messages;
-        conversations.push(temp);
+        conversation[user] = messages;
+        conversations.push(conversation);
       });
 
       console.log(conversations);

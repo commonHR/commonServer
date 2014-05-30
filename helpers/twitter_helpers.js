@@ -15,6 +15,8 @@ var getFriendsURL = {
   info: 'https://api.twitter.com/1.1/users/lookup.json?user_id='
 }
 
+var getFriendInfoURL = 'https://api.twitter.com/1.1/friends/list.json?stringify_ids=true&screen_name=';
+
 var headers = {
   'User-Agent': 'tweetUpApp',
   'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAAK7iXgAAAAAAg1QslCBGGo4H4PgzROllXAK5nwk%3DhMh7822qk7wo7E8BcRWbk5j6gDmOMTtNQo8hZADiuqObTNPF74',
@@ -62,4 +64,24 @@ exports.getFriends = function(screenName){
     user.addFriends(screenName, friendsList);
   });
 };
+
+exports.getFriendInfo = function(screenName, cursor){
+
+  cursor = cursor || -1;
+
+  requestify.request(getFriendInfoURL + screenName + '&cursor=' + cursor + '&count=2' + '&skip_status=true', {
+    method: 'GET',
+    headers: headers
+  })
+  .then(function(response){
+    response.getBody();
+    data = JSON.parse(response.body);
+    // send data.users to db helper
+    if ( data.next_cursor_str !== '0' ) {
+      getFriendInfo(screenName, data.next_cursor_str)
+    }
+  });
+
+};
+
 

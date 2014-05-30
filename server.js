@@ -36,7 +36,9 @@ app.use(function(req, res, next){
 // 	time: new Date().getTime()
 // });
 
-chat.retrieveConversations('RICEaaron');
+// chat.retrieveConversations('RICEaaron');
+
+twitter.getFriendInfo('duncantrussell');
 
 /*         HANDLE REQUESTS           */
 

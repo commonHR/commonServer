@@ -7,6 +7,15 @@ var _ = require('underscore');
 
 /* *************************  */
 
+exports.addFriendsWithInfo = function(screenName, friendsList) {
+  
+  _.each(friendsList, function(friend){
+    addUser(friend, false, {user: screenName, friend: friend});
+  });
+
+};
+
+
 exports.addFriends = function(screenName, friendsList) {
 
   var parseList = function(friendsList){
@@ -29,7 +38,7 @@ exports.addFriends = function(screenName, friendsList) {
 var addUser = exports.addUser = function(user, appUser, relationship) { //appUser is a boolean indicating whether or not this person is a user of our app or not
   
   var params;
-  var appUserParams = {
+  var params = {
     'id_str': user.id_str,
     'name': user.name,
     'screen_name': user.screen_name,
@@ -50,10 +59,16 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url},',
     'u.app_user = {app_user}, u.location = {location}, u.latest_activity = {latest_activity} RETURN u'
   ].join('\n');
+
+  var friendQuery = [
+    'MERGE (u:User {screen_name: {screen_name}})',
+    'ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description},',
+     'u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u'   
+  ].join('\n');
                         
-  var friendQuery = [ 'MERGE (u:User {id_str: {id_str}})',
-                      'ON CREATE SET u.id_str = {id_str}'
-                    ].join('\n');  
+  // var friendQuery = [ 'MERGE (u:User {id_str: {id_str}})',
+  //                     'ON CREATE SET u.id_str = {id_str}'
+  //                   ].join('\n');  
   
   
   if ( !!appUser ) {
