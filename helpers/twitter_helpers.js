@@ -44,53 +44,22 @@ exports.getUserInfo = function(lookupObject, callback) { //object will have eith
     .then(function(response){
       response.getBody();
       var userInfo = JSON.parse(response.body);
-      if ( callback ) callback(userInfo);
-      // callback(userInfo);
+      if ( callback ) callback(userInfo); //callback is response to client with user object
       db.addUser(userInfo, true);
     });
 };
 
-exports.getFriends = function(screenName) {
+exports.getFriends = function(screenName){
 
-  var getList = function(screenName, callback){
-    requestify.request(getFriendsURL.list + screenName, {
-      method: 'GET', //Twitter API recommends using a POST for lists of larger than 100
-      headers: headers,
-     }, callback)
-    .then(function(response){
-      response.getBody();
-      var friendsList = JSON.parse(response.body);
-      friendsList = friendsList.ids;
-      callback(screenName, friendsList);
-    });
-  };
-
-  var getFriendData = function(screenName, friendsList) {
-    
-    var parseList = function(friendsList){
-      for ( var i = 0; i < friendsList.length; i += 100 ) {
-        var lookupList = friendsList.slice(i, i + 100);
-        retrieveData(screenName, lookupList);
-      }
-    };
-
-    var retrieveData = function(screenName, lookupList) {
-      lookupList = lookupList.join(',');
-      requestify.request(getFriendsURL.info + lookupList, {
-        method: 'GET', //Twitter API recommends using a POST for lists of larger than 100
-        headers: headers,
-       })
-      .then(function(response){
-        response.getBody();
-        var friends = JSON.parse(response.body);
-        db.addFriends(screenName, friends);
-      });
-    };
-
-    parseList(friendsList);
-
-  };
-
-  getList(screenName, getFriendData);
-
+  requestify.request(getFriendsURL.list + screenName, {
+    method: 'GET', //Twitter API recommends using a POST for lists of larger than 100
+    headers: headers,
+   })
+  .then(function(response){
+    response.getBody();
+    var friendsList = JSON.parse(response.body);
+    friendsList = friendsList.ids;
+    db.addFriends(screenName, friendsList);
+  });
 };
+

@@ -24,6 +24,10 @@ app.use(function(req, res, next){
 // twitter.getUserInfo({screenName: 'RICEaaron'});
 // twitter.getUserInfo({screenName: 'duncantrussell'});
 
+// Add app user and all friends to DB
+// twitter.getUserInfo({screenName: ''});
+
+// Find matches using screen_name
 // db.findMatches('RICEaaron');
 
 /*         HANDLE REQUESTS           */
