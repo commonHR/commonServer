@@ -50,8 +50,18 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
   var friendParams = { 'id_str': user };
 
   var query;
-  var appUserQuery = "MERGE (u:User {id_str: {id_str}}) ON MATCH SET u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location}, u.latest_activity = timestamp() ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location}, u.latest_activity = timestamp() RETURN u";
-  var friendQuery = "MERGE (u:User {id_str: {id_str}}) ON CREATE SET u.id_str = {id_str}";
+  var appUserQuery = [  
+    'MERGE (u:User {id_str: {id_str}})',
+    'ON MATCH SET u.name = {name}, u.screen_name = {screen_name}, u.description = {description},',
+    'u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location},',
+    'u.latest_activity = timestamp() ON CREATE SET u.id_str= {id_str}, u.name = {name},',
+    'u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url},',
+    'u.app_user = {app_user}, u.location = {location}, u.latest_activity = timestamp() RETURN u"'
+  ].join('\n');
+                        
+  var friendQuery = [ 'MERGE (u:User {id_str: {id_str}})',
+                      'ON CREATE SET u.id_str = {id_str}'
+                    ].join('\n');  
   
   
   if ( !!appUser ) {
@@ -81,7 +91,10 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
 
 var addFollowingRelationship = function ( userScreenName, friendID) {
 
-  var query = "MATCH (u:User {screen_name: {userName}}), (f:User {id_str: {friendID}}) CREATE UNIQUE (u)-[:FOLLOWS]->(f)";
+  var query = [ 
+    'MATCH (u:User {screen_name: {userName}}), (f:User {id_str: {friendID}})',
+    'CREATE UNIQUE (u)-[:FOLLOWS]->(f)'
+  ].join('\n');  
 
   var params = {
     userName: userScreenName,
@@ -100,7 +113,12 @@ var addFollowingRelationship = function ( userScreenName, friendID) {
 
 exports.findMatches = function(screenName){
 
-  var query = "MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m) WHERE u.screen_name = {screen_name} AND m.app_user = true RETURN COUNT(m), m ORDER BY COUNT(m) DESC"
+  var query = [ 
+    'MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
+    'WHERE u.screen_name = {screen_name} AND m.app_user = true',
+    'RETURN COUNT(m), m ORDER BY COUNT(m) DESC'
+  ].join('\n');
+                
   var params = {screen_name:screenName};
 
   db.query(query, params, function (error, results) {
@@ -148,7 +166,11 @@ exports.sendMessage = function(message){
     'conversationID': conversationID
   };
 
-  var conversationQuery = "MATCH (a:User {screen_name: {to}}), (b:User {screen_name: {from}}) CREATE UNIQUE (a)-[:HAS_CONVERSATION]->( c:Conversation {id: {conversationID}} )<-[:HAS_CONVERSATION]-(b) RETURN c"
+  var conversationQuery = [ 
+    'MATCH (a:User {screen_name: {to}}), (b:User {screen_name: {from}})',
+    'CREATE UNIQUE (a)-[:HAS_CONVERSATION]->( c:Conversation {id: {conversationID}} )<-[:HAS_CONVERSATION]-(b)',
+    'RETURN c'
+  ].join('\n');  
 
   db.query(conversationQuery, params, function (error, results) {
     if ( error ) {
@@ -158,7 +180,13 @@ exports.sendMessage = function(message){
     }
   });
 
-  var createMessageQuery = "MATCH (c:CONVERSATION {id: {conversationID}}) CREATE (c)-[r:CONTAINS_MESSAGE]->(m:Message {to:{to}, text:{text}, time:{time}}) RETURN m"; 
+  var createMessageQuery =[ 
+    'MATCH (c:CONVERSATION {id: {conversationID}})',
+    'CREATE (c)-[r:CONTAINS_MESSAGE]->(m:Message {to:{to}, text:{text}, time:{time}})',
+    'RETURN m'
+  ].join('\n');
+
+
 
   db.query(createMessageQuery, params, function (error, results) {
     if ( error ) {
