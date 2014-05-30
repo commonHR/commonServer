@@ -103,7 +103,7 @@ var addFollowingRelationship = function ( userScreenName, friendID) {
 
 };
 
-exports.findMatches = function(screenName){
+exports.findMatches = function(screenName, callback){
 
   var query = [ 
     'MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
@@ -120,7 +120,8 @@ exports.findMatches = function(screenName){
       var matches = results.map(function(result) {
         return [result['COUNT(m)'], result.m._data.data];
       });
-      console.log(matches);
+      // console.log(matches);
+      callback(matches);
     }
     //add callback for the request_helper to send the response back to app
   });
