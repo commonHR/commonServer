@@ -45,6 +45,7 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'description': user.description,
     'profile_image_url': user.profile_image_url,
     'app_user': (!!appUser),
+    'latest_activity': new Date().getTime(),
     'location': user.location || 'unknown'
   };
   var friendParams = { 'id_str': user };
@@ -54,9 +55,9 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'MERGE (u:User {id_str: {id_str}})',
     'ON MATCH SET u.name = {name}, u.screen_name = {screen_name}, u.description = {description},',
     'u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location},',
-    'u.latest_activity = timestamp() ON CREATE SET u.id_str= {id_str}, u.name = {name},',
+    'u.latest_activity = {latest_activity} ON CREATE SET u.id_str= {id_str}, u.name = {name},',
     'u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url},',
-    'u.app_user = {app_user}, u.location = {location}, u.latest_activity = timestamp() RETURN u'
+    'u.app_user = {app_user}, u.location = {location}, u.latest_activity = {latest_activity} RETURN u'
   ].join('\n');
                         
   var friendQuery = [ 'MERGE (u:User {id_str: {id_str}})',
@@ -160,15 +161,18 @@ exports.sendMessage = function(message){
 
   var params = {
     'text':message.text,
-    'time':message.timestamp, 
+    'time': new Date().getTime(), 
     'from':message.from, 
     'to':message.to,
     'conversationID': conversationID
   };
 
   var conversationQuery = [ 
+    'MERGE (c:Conversation {id: {conversationID}})',
+    'ON CREATE SET c.created_at = {time}',
+    'WITH c', 
     'MATCH (a:User {screen_name: {to} }), (b:User {screen_name: {from} })',
-    'CREATE UNIQUE (a)-[:HAS_CONVERSATION]->( c:Conversation {id: {conversationID}} )<-[:HAS_CONVERSATION]-(b)',
+    'CREATE UNIQUE (a)-[:HAS_CONVERSATION]->(c)<-[:HAS_CONVERSATION]-(b)',
     'RETURN c'
   ].join('\n');  
 
@@ -181,41 +185,41 @@ exports.sendMessage = function(message){
     }
   });
 
-  var createMessageQuery =[ 
-    'MATCH (c:CONVERSATION {id: {conversationID}})',
-    'CREATE (c)-[r:CONTAINS_MESSAGE]->(m:Message {to:{to}, text:{text}, time:{time}})',
-    'RETURN m'
-  ].join('\n');
+  // var createMessageQuery =[ 
+  //   'MATCH (c:CONVERSATION {id: {conversationID}})',
+  //   'CREATE (c)-[r:CONTAINS_MESSAGE]->(m:Message {to:{to}, text:{text}, time:{time}})',
+  //   'RETURN m'
+  // ].join('\n');
 
 
 
-  db.query(createMessageQuery, params, function (error, results) {
-    if ( error ) {
-      console.log (error);
-    } else {
-      console.log("created message", results);
-    }
-  });
+  // db.query(createMessageQuery, params, function (error, results) {
+  //   if ( error ) {
+  //     console.log (error);
+  //   } else {
+  //     console.log("created message", results);
+  //   }
+  // });
   
-  // if not create a new message node
-  // else prepend the message to the front of the node
-  // var query = "MERGE (m:Message {to:{to}, from:{from}}) ON MATCH SET m.position = {position} ON CREATE SET m.text= {text}, m.to = {to}, m.from = {from}, m.date = {date}, m.position = {position} RETURN m";
+  // // if not create a new message node
+  // // else prepend the message to the front of the node
+  // // var query = "MERGE (m:Message {to:{to}, from:{from}}) ON MATCH SET m.position = {position} ON CREATE SET m.text= {text}, m.to = {to}, m.from = {from}, m.date = {date}, m.position = {position} RETURN m";
 
-  var updateQuery = [
-    'MATCH (c:Conversation {id:{conversationID}}),',
-    '(c)-[r:CONTAINS_MESSAGE]->(m2:Message)',
-    'DELETE r',
-    'WITH c, m2',
-    'CREATE UNIQUE (c)-[:CONTAINS_MESSAGE]->(m:Message {to:{to}, text:{text}, time:{time}})-[:CONTAINS_MESSAGE]->(m2)',
-    'RETURN c'
-  ].join('\n');
+  // var updateQuery = [
+  //   'MATCH (c:Conversation {id:{conversationID}}),',
+  //   '(c)-[r:CONTAINS_MESSAGE]->(m2:Message)',
+  //   'DELETE r',
+  //   'WITH c, m2',
+  //   'CREATE UNIQUE (c)-[:CONTAINS_MESSAGE]->(m:Message {to:{to}, text:{text}, time:{time}})-[:CONTAINS_MESSAGE]->(m2)',
+  //   'RETURN c'
+  // ].join('\n');
 
-  db.query(updateQuery, params, function (error, results) {
-    if ( error ) {
-      console.log (error);
-    } else {
-      console.log("inserted second", results);
-    }
-  });
+  // db.query(updateQuery, params, function (error, results) {
+  //   if ( error ) {
+  //     console.log (error);
+  //   } else {
+  //     console.log("inserted second", results);
+  //   }
+  // });
 
 }

@@ -19,11 +19,11 @@ app.use(function(req, res, next){
   next();
 });
 
-db.sendMessage({ to: "duncantrussell", from: "SamHarrisOrg", text: "hello hello", timestamp: '1401415688819'})
-// db.sendMessage({ to: "marc0au", from: "RICEaaron", text: "hello hello back", timestamp: '1401415688820'})
+// db.sendMessage({ to: "ChrisRyanPhd", from: "joerogan", text: "hello hello", timestamp: '1401415688819'})
+db.sendMessage({ to: "RICEaaron", from: "marc0au", text: "message3"});
 
 
-// twitter.getUserInfo({screenName: 'chrisryanphd'}); 
+// twitter.getUserInfo({screenName: 'marc0au'}); 
 // twitter.getUserInfo({screenName: 'SamHarrisOrg'});
 // twitter.getUserInfo({screenName: 'duncantrussell'});
 
