@@ -126,16 +126,11 @@ exports.deleteAppUser = function(screenName){
   //also need to delete a friend node if no other users are following that person
 };
 
-var createConversationID = function( user_one, user_two ) {
+var getConversationID = function( user_one, user_two ) {
 
-  var init = [].concat(user_one, user_two).join('').split('');
-
-  var result = _.map(init, function(letter){
-    return letter.charCodeAt(0);
-  })
-
-  result = result.sort(function(a,b){ return a - b}).join('');
-  return result;
+  return _.map([].concat(user_one, user_two).join('').split(''), function(letter){
+    return letter.charCodeAt(0); 
+  }).sort(function(a,b){ return a - b;}).join('');
 
 };
 
@@ -143,7 +138,7 @@ exports.sendMessage = function(message){
 
   //check if there are previous messages between the same users
 
-  var conversationID = createConversationID(message.to, message.from);
+  var conversationID = getConversationID(message.to, message.from);
 
   var params = {
     'text':message.text,
