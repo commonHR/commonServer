@@ -126,11 +126,24 @@ exports.deleteAppUser = function(screenName){
   //also need to delete a friend node if no other users are following that person
 };
 
+var createConversationID = function( user_one, user_two ) {
+
+  var init = [].concat(user_one, user_two).join('').split('');
+
+  var result = _.map(init, function(letter){
+    return letter.charCodeAt(0);
+  })
+
+  result = result.sort(function(a,b){ return a - b}).join('');
+  return result;
+
+};
+
 exports.sendMessage = function(message){
 
   //check if there are previous messages between the same users
 
-  var conversationID = [message.to, message.from].sort(function(a,b){return a - b;}).join('');
+  var conversationID = createConversationID(message.to, message.from);
 
   var params = {
     'text':message.text,
@@ -140,39 +153,44 @@ exports.sendMessage = function(message){
     'conversationID': conversationID
   };
 
-  conversationQuery = "MATCH (a:User {screen_name: {to}}), (b:User {screen_name: {from}}) CREATE UNIQUE (a)-[:HAS_CONVERSATION]->( c:Conversation {id: {conversationID}} )<-[:HAS_CONVERSATION]-(b) RETURN c"
+  var conversationQuery = "MATCH (a:User {screen_name: {to}}), (b:User {screen_name: {from}}) CREATE UNIQUE (a)-[:HAS_CONVERSATION]->( c:Conversation {id: {conversationID}} )<-[:HAS_CONVERSATION]-(b) RETURN c"
 
   db.query(conversationQuery, params, function (error, results) {
     if ( error ) {
       console.log (error);
     } else {
-      console.log(results);
+      console.log("created conversation", results);
     }
   });
 
+  var createMessageQuery = "MATCH (c:CONVERSATION {id: {conversationID}}) CREATE (c)-[r:CONTAINS_MESSAGE]->(m:Message {to:{to}, text:{text}, time:{time}}) RETURN m"; 
 
-
-  // var createQuery = "MATCH (a:User {screen_name: {to}}), (b:User {screen_name: {from}}) CREATE UNIQUE (a)-[r:HAS_CONVERSATION]->(b) RETURN r"; 
+  db.query(createMessageQuery, params, function (error, results) {
+    if ( error ) {
+      console.log (error);
+    } else {
+      console.log("created message", results);
+    }
+  });
   
   // if not create a new message node
   // else prepend the message to the front of the node
   // var query = "MERGE (m:Message {to:{to}, from:{from}}) ON MATCH SET m.position = {position} ON CREATE SET m.text= {text}, m.to = {to}, m.from = {from}, m.date = {date}, m.position = {position} RETURN m";
 
   var updateQuery = [
-    'MATCH (a:User)-[:HAS_CONVERSATION]->(c:Conversation {id:{conversationID}})<-[:HAS_CONVERSATION]-(b:User)',
-    'WITH c',
-    'MATCH (c)-[r:CONTAINS_MESSAGE]->(m2:Message)',
+    'MATCH (c:Conversation {id:{conversationID}}),',
+    '(c)-[r:CONTAINS_MESSAGE]->(m2:Message)',
     'DELETE r',
     'WITH c, m2',
     'CREATE UNIQUE (c)-[:CONTAINS_MESSAGE]->(m:Message {to:{to}, text:{text}, time:{time}})-[:CONTAINS_MESSAGE]->(m2)',
-    'RETURN null'
+    'RETURN c'
   ].join('\n');
 
   db.query(updateQuery, params, function (error, results) {
     if ( error ) {
       console.log (error);
     } else {
-      console.log(results);
+      console.log("inserted second", results);
     }
   });
 

@@ -20,6 +20,7 @@ app.use(function(req, res, next){
 });
 
 db.sendMessage({ to: "RICEaaron", from: "marc0au", text: "hello hello", timestamp: '1401415688819'})
+db.sendMessage({ to: "marc0au", from: "RICEaaron", text: "hello hello back", timestamp: '1401415688820'})
 
 
 // twitter.getUserInfo({screenName: 'chrisryanphd'}); 
