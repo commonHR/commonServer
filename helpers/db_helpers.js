@@ -154,7 +154,7 @@ var getConversationID = function( user_one, user_two ) {
 
 exports.sendMessage = function(message){
 
-  //check if there are previous messages between the same users
+  console.log(message);
 
   var conversationID = getConversationID(message.to, message.from);
 
@@ -167,7 +167,7 @@ exports.sendMessage = function(message){
   };
 
   var conversationQuery = [ 
-    'MATCH (a:User {screen_name: {to}}), (b:User {screen_name: {from}})',
+    'MATCH (a:User {screen_name: {to} }), (b:User {screen_name: {from} })',
     'CREATE UNIQUE (a)-[:HAS_CONVERSATION]->( c:Conversation {id: {conversationID}} )<-[:HAS_CONVERSATION]-(b)',
     'RETURN c'
   ].join('\n');  
@@ -176,6 +176,7 @@ exports.sendMessage = function(message){
     if ( error ) {
       console.log (error);
     } else {
+      console.log(results.db);
       console.log("created conversation", results);
     }
   });
