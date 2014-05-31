@@ -13,6 +13,36 @@ var getConversationID = function( user_one, user_two ) {
 
 };
 
+exports.retrieveSingleConversation = function(user1, user2) {
+
+  var conversationID = getConversationID(user1, user2);
+
+  var params = {
+    'conversationID': conversationID
+  };
+
+  var conversationQuery = [
+    'MATCH (c:Conversation {id:{conversationID}})',
+    'WITH c',
+    'MATCH path=(c)-[*]->(m:Message)',
+    'RETURN collect(m) as messages'
+  ].join('\n'); 
+
+  db.query(conversationQuery, params, function (error, results) {
+  if ( error ) {
+    console.log (error);
+  } else {
+
+    var messages = results[0].messages;
+    var conversation = _.map(messages, function(message){
+      return message._data.data;
+    })
+
+    //return conversation
+  }
+  }); 
+};
+
 exports.retrieveConversations = function(screenName) {
 
   var params = {

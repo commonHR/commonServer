@@ -20,8 +20,6 @@ app.use(function(req, res, next){
   next();
 });
 
-twitter.getUserInfo({screenName: 'marc0au'});
-
 /*         HANDLE REQUESTS           */
 
 app.post('/login', request.userLogin);
