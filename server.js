@@ -3,7 +3,8 @@ var express = require('express');
 var bodyParser = require('body-parser')
 var twitter = require('./helpers/twitter_helpers');
 var request = require('./helpers/request_helpers');
-var db = require('./helpers/db_helpers');
+var user = require('./helpers/user_helpers');
+var chat = require('./helpers/chat_helpers');
 
 
 /*          START SERVER             */
@@ -26,14 +27,7 @@ app.use(function(req, res, next){
   next();
 });
 
-// twitter.getUserInfo({screenName: 'RICEaaron'}); 
-
-// db.sendMessage({ 
-// 	sender: 'RICEaaron', 
-// 	recipient: 'marc0au', 
-// 	text: 'test message 2',
-// 	time: new Date().getTime()
-// });
+twitter.getUserInfo({screenName: 'marc0au'});
 
 /*         HANDLE REQUESTS           */
 

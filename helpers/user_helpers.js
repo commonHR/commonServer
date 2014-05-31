@@ -7,6 +7,14 @@ var _ = require('underscore');
 
 /* *************************  */
 
+exports.addFriendsWithInfo = function(screenName, friendsList) {
+  
+  _.each(friendsList, function(friend){
+    addUser(friend, false, {user: screenName, friend: friend.screen_name});
+  });
+
+};
+
 exports.addFriends = function(screenName, friendsList) {
 
   var parseList = function(friendsList){
@@ -28,8 +36,7 @@ exports.addFriends = function(screenName, friendsList) {
 
 var addUser = exports.addUser = function(user, appUser, relationship) { //appUser is a boolean indicating whether or not this person is a user of our app or not
   
-  var params;
-  var appUserParams = {
+  var params = {
     'id_str': user.id_str,
     'name': user.name,
     'screen_name': user.screen_name,
@@ -39,36 +46,34 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'latest_activity': new Date().getTime(),
     'location': user.location || 'unknown'
   };
-  var friendParams = { 'id_str': user };
 
   var query;
   var appUserQuery = [  
-    'MERGE (u:User {id_str: {id_str}})',
-    'ON MATCH SET u.name = {name}, u.screen_name = {screen_name}, u.description = {description},',
+    'MERGE (u:User {screen_name: {screen_name}})',
+    'ON MATCH SET u.id_str = {id_str}, u.screen_name = {screen_name}, u.description = {description},',
     'u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location},',
     'u.latest_activity = {latest_activity} ON CREATE SET u.id_str= {id_str}, u.name = {name},',
     'u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url},',
     'u.app_user = {app_user}, u.location = {location}, u.latest_activity = {latest_activity} RETURN u'
   ].join('\n');
-                        
-  var friendQuery = [ 'MERGE (u:User {id_str: {id_str}})',
-                      'ON CREATE SET u.id_str = {id_str}'
-                    ].join('\n');  
-  
-  
+
+  var friendQuery = [
+    'MERGE (u:User {screen_name: {screen_name}})',
+    'ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description},',
+     'u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u'   
+  ].join('\n');
+                          
   if ( !!appUser ) {
     query = appUserQuery;
-    params = appUserParams;
   } else {
     query = friendQuery;
-    params = friendParams;
   }
 
   db.query(query, params, function (error, results) {
     if ( error ) {
       console.log (error);
     } else {
-      console.log(user + " added to DB");
+      console.log(user.screen_name + " added to DB");
       if ( relationship ) {
         addFollowingRelationship( relationship.user, relationship.friend );
       }
@@ -81,23 +86,23 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
 
 };
 
-var addFollowingRelationship = function ( userScreenName, friendID) {
+var addFollowingRelationship = function ( userName, friendName) {
 
   var query = [ 
-    'MATCH (u:User {screen_name: {userName}}), (f:User {id_str: {friendID}})',
+    'MATCH (u:User {screen_name: {userName}}), (f:User {screen_name: {friendName}})',
     'CREATE UNIQUE (u)-[:FOLLOWS]->(f)'
   ].join('\n');  
 
   var params = {
-    userName: userScreenName,
-    friendID: friendID
+    userName: userName,
+    friendName: friendName
   };
 
   db.query(query, params, function (error, results) {
     if ( error ) {
       console.log (error);
     } else {
-      console.log(userScreenName + " follows friend with ID: " + friendID);
+      console.log(userName + " follows " + friendName);
     }
   });
 
@@ -126,88 +131,6 @@ exports.findMatches = function(screenName, callback){
     //add callback for the request_helper to send the response back to app
   });
 
-};
-
-var getConversationID = function( user_one, user_two ) {
-
-  return _.map([].concat(user_one, user_two).join('').split(''), function(letter){
-    return letter.charCodeAt(0); 
-  }).sort(function(a,b){ return a - b;}).join('');
-
-};
-
-exports.sendMessage = function(message){
-
-  var conversationID = getConversationID(message.to, message.from);
-
-  var params = {
-    'conversationID': conversationID,
-    'sender':message.sender, 
-    'recipient':message.recipient,
-    'text':message.text,
-    'created_at': new Date().getTime(),
-    'time': message.time
-  };
-
-  var conversationQuery = [ 
-    'MERGE (c:Conversation {id: {conversationID}})',
-    'ON CREATE SET c.created_at = {time}, c.new_conversation = true',
-    'WITH c', 
-    'MATCH (a:User {screen_name: {sender} }), (b:User {screen_name: {recipient} })',
-    'CREATE UNIQUE (a)-[:HAS_CONVERSATION]->(c)<-[:HAS_CONVERSATION]-(b)',
-    'RETURN c'
-  ].join('\n');  
-
-  db.query(conversationQuery, params, function (error, results) {
-    if ( error ) {
-      console.log (error);
-    } else {
-      console.log("Conversation results", results);
-      createFirstMessage();
-    }
-  });
-
-  var createFirstMessage = function() {
-    
-    var firstMessageQuery = [
-      'MATCH (c:Conversation {id:{conversationID} , new_conversation: true})',
-      'SET c.new_conversation = false',
-      'CREATE UNIQUE (c)-[:CONTAINS_MESSAGE]->(m:Message {sender:{sender}, recipient:{recipient}, text:{text}, time:{time}})',
-      'RETURN m,c'
-    ].join('\n');
-
-
-    db.query(firstMessageQuery, params, function (error, results) {
-      if ( error ) {
-        console.log (error);
-      } else {
-        if ( results.length === 0 ) {
-          addMessage();
-        }
-      }
-    });
-  };
-
-  var addMessage = function(){
-
-    var messageQuery = [
-      'MATCH (c:Conversation {id:{conversationID}, new_conversation: false})',
-      'WITH c',
-      'MATCH (c)-[r:CONTAINS_MESSAGE]->(m2:Message)',
-      'DELETE r',
-      'WITH c, m2',
-      'CREATE UNIQUE (c)-[:CONTAINS_MESSAGE]->(m:Message {sender:{sender}, recipient:{recipient}, text:{text}, time:{time}})-[:CONTAINS_MESSAGE]->(m2)',
-      'RETURN m,c'
-    ].join('\n');
-
-    db.query(messageQuery, params, function (error, results) {
-      if ( error ) {
-        console.log (error);
-      } else {
-        console.log("Add message", results);
-      }
-    });
-  };
 };
 
 exports.updateUserProperty = function (screenName, properties) { 

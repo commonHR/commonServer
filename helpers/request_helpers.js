@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var app = require('../server');
-var db = require('./db_helpers');
+var user = require('./user_helpers');
 var twitter = require('./twitter_helpers');
 
 exports.home = function(request, response) {
