@@ -7,30 +7,11 @@ var _ = require('underscore');
 
 /* *************************  */
 
-exports.addFriendsWithInfo = function(screenName, friendsList) {
+exports.addFriends = function(screenName, friendsList) {
   
   _.each(friendsList, function(friend){
     addUser(friend, false, {user: screenName, friend: friend.screen_name});
   });
-
-};
-
-exports.addFriends = function(screenName, friendsList) {
-
-  var parseList = function(friendsList){
-    for ( var i = 0; i < friendsList.length; i += 100 ) {
-      var list = friendsList.slice(i, i + 100);
-      addFriendToDB(list);
-    }
-  };
-
-  var addFriendToDB = function(list) {
-    _.each(list, function (friend) {
-      addUser(friend, false, {user: screenName, friend: friend}); // friend is id_str
-    });
-  };
-
-  parseList(friendsList);
 
 };
 
@@ -104,30 +85,6 @@ var addFollowingRelationship = function ( userName, friendName) {
     } else {
       console.log(userName + " follows " + friendName);
     }
-  });
-
-};
-
-exports.findMatches = function(screenName){
-
-  var query = [ 
-    'MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
-    'WHERE u.screen_name = {screen_name} AND m.app_user = true',
-    'RETURN COUNT(m), m ORDER BY COUNT(m) DESC'
-  ].join('\n');
-                
-  var params = {screen_name:screenName};
-
-  db.query(query, params, function (error, results) {
-    if ( error ) {
-      console.log (error);
-    } else {
-      var matches = results.map(function(result) {
-        return [result['COUNT(m)'], result.m._data.data];
-      });
-      console.log(matches);
-    }
-    //add callback for the request_helper to send the response back to app
   });
 
 };

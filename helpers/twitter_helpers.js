@@ -59,7 +59,7 @@ var getFriends = exports.getFriends = function(screenName, cursor){
   .then(function(response){
     response.getBody();
     var data = JSON.parse(response.body);
-    user.addFriendsWithInfo(screenName, data.users);
+    user.addFriends(screenName, data.users);
     if ( data.next_cursor_str !== '0' ) {
       getFriends(screenName, data.next_cursor_str);
     }
