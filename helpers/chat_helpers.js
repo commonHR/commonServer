@@ -29,19 +29,20 @@ exports.retrieveSingleConversation = function(user, match) {
   ].join('\n'); 
 
   db.query(conversationQuery, params, function (error, results) {
-  if ( error ) {
-    console.log (error);
-  } else {
-    // console.log("Results", results);
-    var messageData = results[0].messages;
-    var messages = _.map(messageData, function(message){
-      return message._data.data;
-    })
+    if ( error ) {
+      console.log (error);
+    } else {
+      
+      var messageData = results[0].messages;
 
-    var conversation ({ screen_name: match, conversation: messages});
+      var messages = _.map(messageData, function(message){
+        return message._data.data;
+      });
 
-    //return conversation
-  }
+      var conversation = { screen_name: match, conversation: messages};
+
+      // return conversation;
+    }
   }); 
 };
 
@@ -55,11 +56,11 @@ exports.retrieveConversations = function(screenName, callback) {
     'MATCH (user:User {screen_name:{user}})',
     'SET user.latest_activity = "'+ new Date().getTime()+'"',
     'WITH user',
-    'MATCH (user)-[:HAS_CONVERSATION]->(c:Conversation)<-[:HAS_CONVERSATION]-(other:User)',
-    'WITH c, other',
+    'MATCH (user)-[:HAS_CONVERSATION]->(c:Conversation)<-[:HAS_CONVERSATION]-(match:User)',
+    'WITH c, match',
     'MATCH path=(c)-[*]->(m:Message)',
-    'RETURN DISTINCT other, collect(m) as messages',
-    'ORDER BY c.time DESC'
+    'RETURN DISTINCT c.latest_message, match, collect(m) as messages',
+    'ORDER BY c.latest_message DESC'
   ].join('\n'); 
 
 
@@ -71,7 +72,7 @@ exports.retrieveConversations = function(screenName, callback) {
 
       _.each(results, function(result){
         var conversation = {};
-        var user = result.other._data.data.screen_name;
+        var user = result.match._data.data.screen_name;
         var messages = _.map(result.messages, function(message){
           return message._data.data;
         })
@@ -79,8 +80,6 @@ exports.retrieveConversations = function(screenName, callback) {
         conversation.conversation = messages;
         conversations.push(conversation);
       });
-
-      console.log(conversations);
 
       // callback(conversations);
     }
