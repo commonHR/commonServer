@@ -96,7 +96,7 @@ exports.sendMessage = function(message){
     'sender':message.sender, 
     'recipient':message.recipient,
     'text':message.text,
-    'time': new Date().getTime()
+    'time': new Date()
   };
 
   var conversationQuery = [ 
