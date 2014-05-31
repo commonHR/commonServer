@@ -9,7 +9,7 @@ var chat = require('./helpers/chat_helpers');
 /*          START SERVER             */
 
 var app = express();
-// app.use(express.bodyParser());
+app.use(express.bodyParser());
 var port = process.env.PORT || 4568;
 app.listen(port);
 console.log('Server now listening on port ' + port);
@@ -25,8 +25,9 @@ twitter.getUserInfo({screenName: 'marc0au'});
 /*         HANDLE REQUESTS           */
 
 app.post('/login', request.userLogin);
-app.get('/search', request.findMatches);
-app.post('/message', request.sendMessage);
+app.post('/search', request.findMatches);
+app.post('/send_message', request.sendMessage);
+app.post('/get_messages', request.getMessages);
 app.get('*', request.home)
 
 

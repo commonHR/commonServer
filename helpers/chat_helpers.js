@@ -13,7 +13,7 @@ var getConversationID = function( user_one, user_two ) {
 
 };
 
-exports.retrieveConversations = function(screenName) {
+exports.retrieveConversations = function(screenName, callback) {
 
   var params = {
     'user': screenName
@@ -45,6 +45,8 @@ exports.retrieveConversations = function(screenName) {
         conversation[user] = messages;
         conversations.push(conversation);
       });
+
+      callback(conversations);
     }
 
   }); 
@@ -60,13 +62,13 @@ exports.sendMessage = function(message){
     'sender':message.sender, 
     'recipient':message.recipient,
     'text':message.text,
-    'created_at': new Date().getTime(),
-    'time': message.time
+    // 'created_at': new Date().getTime(),
+    'time': new Date()
   };
 
   var conversationQuery = [ 
     'MERGE (c:Conversation {id: {conversationID}})',
-    'ON CREATE SET c.created_at = {time}, c.new_conversation = true',
+    'ON CREATE SET c.new_conversation = true',
     'WITH c', 
     'MATCH (a:User {screen_name: {sender} }), (b:User {screen_name: {recipient} })',
     'CREATE UNIQUE (a)-[:HAS_CONVERSATION]->(c)<-[:HAS_CONVERSATION]-(b)',

@@ -1,6 +1,9 @@
+var _ = require('underscore');
 var app = require('../server');
+var db = require('./db_helpers');
 var user = require('./user_helpers');
 var twitter = require('./twitter_helpers');
+var chat = require('./chat_helpers');
 
 exports.home = function(request, response) {
   response.redirect('http://www.twitter.com');	
@@ -11,15 +14,28 @@ exports.userLogin = function(request, response) {
   console.log(request.body);
 
   var screenName = request.body.screen_name;
+  twitter.getUserInfo({screenName: 'nickolaswei'}, function(user){
+    // response.send(200, 'Login success');
+    console.log('hey');
+  });
+
   twitter.getUserInfo({screenName: screenName}, function(user){
     response.send(200, 'Login success');
   });
 };
 
 exports.findMatches = function(request, response) {
-  var screenName = request.body.screenName;
+  var screenName = request.body.screen_name;
   // var location = request.body.location;
   // query the db
+  db.findMatches(screenName, function(data){
+    var matches = {};
+    _.map(data, function(arr){
+      matches[arr[1].screen_name] = arr[1];
+    });
+    console.log(matches);
+    response.send(200, matches);
+  });
 };
 
 exports.sendMessage = function(request, response) {
@@ -29,8 +45,15 @@ exports.sendMessage = function(request, response) {
   var message = request.body.message;
 
   db.sendMessage(message);
+  response.send(200, 'Message sent');
 
 };
 
-
-
+exports.getMessages = function(request, response) {
+  console.log(request.body);
+  var screenName = request.body.screen_name;
+  chat.retrieveConversations(screenName, function(data){
+    console.log(data);
+    response.send(200, data);
+  });
+};
