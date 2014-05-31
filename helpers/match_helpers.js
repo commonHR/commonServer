@@ -1,7 +1,7 @@
 /*        MODULE DEPENDENCIES       */
 var neo4j = require('neo4j');
 var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
-var geo = require('geolib');
+var geolib = require('geolib');
 var timeago = require('timeago');
 var _  = require('underscore');
 
@@ -50,22 +50,34 @@ exports.findMatches = function(screenName, searchRadius, location){
         match[1].latest_activity = timeago(time);
       });
 
-      // if ( !!location ) {
-      //   filterByLocation(timeFilteredMatches);
-      // } else {
-      //   //return timeFilteredMatches to client
-      // }
+      if ( !!location ) {
+        filterByLocation(timeFilteredMatches);
+      } else {
+        //return timeFilteredMatches to client
+      }
     };
 
     var filterByLocation = function(matches) {
 
-      // filter by location
+      var filteredMatches = [];
 
-      //return filtered matches to client
-    }
+      _.each(matches, function(match) {
+        console.log(match);
+        var userLocation = JSON.parse(location);
+        var matchLocation = JSON.parse(match[1].latest_location);
+        var distance = (geolib.getDistance(userLocation, matchLocation)) * 0.000621371 ;//Convert to miles
+
+        if ( distance <= searchRadius ) {
+          filteredMatches.push(match);
+        }
+      });
+
+      //return filterdMatches to client
+
+    };
 
     filterByTime(matches);
-  }
+  };
 
 
 };
