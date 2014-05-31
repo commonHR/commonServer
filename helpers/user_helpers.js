@@ -1,3 +1,5 @@
+/*        MODULE DEPENDENCIES       */
+
 var neo4j = require('neo4j');
 var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474'); //Graphene 'tweetup.sb02.stations.graphenedb.com:24789/'
 var twitter = require('./twitter_helpers');
@@ -5,7 +7,7 @@ var chat = require('./chat_helpers');
 var requestify = require('requestify');
 var _ = require('underscore');
 
-/* *************************  */
+/*        DATABASE USER FUNCTIONS       */
 
 exports.addFriends = function(screenName, friendsList) {
   
@@ -54,7 +56,7 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     if ( error ) {
       console.log (error);
     } else {
-      console.log(user.screen_name + " added to DB");
+      console.log(user.screen_name + ' added to DB');
       if ( relationship ) {
         addFollowingRelationship( relationship.user, relationship.friend );
       }
@@ -83,7 +85,7 @@ var addFollowingRelationship = function ( userName, friendName) {
     if ( error ) {
       console.log (error);
     } else {
-      console.log(userName + " follows " + friendName);
+      console.log(userName + ' follows ' + friendName);
     }
   });
 

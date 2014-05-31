@@ -3,7 +3,7 @@ var neo4j = require('neo4j');
 var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474'); //Graphene 'tweetup.sb02.stations.graphenedb.com:24789/'
 var _ = require('underscore');
 
-/*         CHAT FUNCTIONS            */
+/*        CHAT FUNCTIONS        */
 
 var getConversationID = function( user_one, user_two ) {
 
@@ -83,7 +83,6 @@ exports.retrieveConversations = function(screenName, callback) {
 
       // callback(conversations);
     }
-
   }); 
 
 };
@@ -114,7 +113,7 @@ exports.sendMessage = function(message){
     if ( error ) {
       console.log (error);
     } else {
-      console.log("Conversation results", results);
+      console.log('Conversation updated');
       createFirstMessage();
     }
   });
@@ -134,8 +133,10 @@ exports.sendMessage = function(message){
       if ( error ) {
         console.log (error);
       } else {
-        if ( results.length === 0 ) {
+        if ( results.length === 0 ) { //Results will be an empty array if new_conversation = false
           addMessage();
+        } else {
+          console.log('Added first message to the conversation');
         }
       }
     });
@@ -158,7 +159,7 @@ exports.sendMessage = function(message){
       if ( error ) {
         console.log (error);
       } else {
-        console.log("Add message", results);
+        console.log('Message added to the conversation');
       }
     });
   };
