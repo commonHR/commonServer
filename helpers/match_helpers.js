@@ -1,7 +1,7 @@
 /*        MODULE DEPENDENCIES       */
 var neo4j = require('neo4j');
 var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
-var geo = require('geolib');
+var geolib = require('geolib');
 var timeago = require('timeago');
 var _  = require('underscore');
 
@@ -16,7 +16,7 @@ exports.findMatches = function(screenName, searchRadius, location){
     'ORDER BY COUNT(m) DESC'
   ].join('\n');
                 
-  var params = {screen_name:screenName, latest_location: location, latest_activity: new Date()};
+  var params = {screen_name:screenName, latest_location: location, latest_activity: new Date().getTime()};
 
   db.query(query, params, function (error, results) {
     if ( error ) {
@@ -26,11 +26,7 @@ exports.findMatches = function(screenName, searchRadius, location){
         return [result['COUNT(m)'], result.m._data.data, commonFriendsArray(result.u._data.data.screen_name, result.m._data.data.screen_name)];
       });
 
-      console.log(matches);
-
       filterMatches(matches);
-      // filterMatchesByDistance(matches);
-      // sortMatchesByLocation(matches);
     }
     //add callback for the request_helper to send the response back to app
   });
@@ -55,39 +51,51 @@ exports.findMatches = function(screenName, searchRadius, location){
 
     var filterByTime = function(matches) {
 
-      // _.each(matches, function(match){
-      //   console.log(match[1].latest_activity);
-      // });
-      var currentTime = Date.now();
+      var currentTime = new Date().getTime();
 
-      var timeFilteredMatches = _.filter(matches, function(match){
-        return (currentTime - match[1].latest_activity <= 3600000);
+      var timeFilteredMatches = [];
+
+      // Filters matches by latest activity
+      _.each(matches, function(match){
+        if (new Date().getTime() -  match[1].latest_activity <= 10800000) { // 3 hours
+          timeFilteredMatches.push(match);
+        }
       });
       
+      // Converts the latest activity of each user a friendly format (i.e., 8 minutes ago, 2 hours ago, etc.)
       _.each(timeFilteredMatches, function(match){
-        match[1].latest_activity = timeago(match[1].latest_activity); 
-      }); 
-
-      console.log(timeFilteredMatches);
+        var time = new Date(match[1].latest_activity);
+        match[1].latest_activity = timeago(time);
+      });
 
       if ( !!location ) {
-        filterByLocation(matches);
+        filterByLocation(timeFilteredMatches);
       } else {
-        //return matches to client
+        //return timeFilteredMatches to client
       }
-
-
     };
 
     var filterByLocation = function(matches) {
 
-      // filter by location
+      var filteredMatches = [];
 
-      //return filtered matches to client
-    }
+      _.each(matches, function(match) {
+        console.log(match);
+        var userLocation = JSON.parse(location);
+        var matchLocation = JSON.parse(match[1].latest_location);
+        var distance = (geolib.getDistance(userLocation, matchLocation)) * 0.000621371 ;//Convert to miles
+
+        if ( distance <= searchRadius ) {
+          filteredMatches.push(match);
+        }
+      });
+
+      //return filterdMatches to client
+
+    };
 
     filterByTime(matches);
-  }
+  };
 
 
 };
