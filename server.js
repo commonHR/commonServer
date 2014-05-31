@@ -33,7 +33,7 @@ app.use(function(req, res, next){
 // twitter.getUserInfo({screenName: 'marc0au'});
 // chat.retrieveConversations("marc0au");
 
-match.findMatches('marc0au', 2, '{latitude: 37.7833, longitude: 122.4167}');
+match.findMatches('RICEaaron', 2, '{latitude: 37.7833, longitude: 122.4167}');
 
 
 // chat.sendMessage({

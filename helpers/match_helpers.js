@@ -14,7 +14,7 @@ exports.findMatches = function(screenName, searchRadius, location){
     'RETURN COUNT(m), m ORDER BY COUNT(m) DESC'
   ].join('\n');
                 
-  var params = {screen_name:screenName, latest_location: location, latest_activity: new Date()};
+  var params = {screen_name:screenName, latest_location: location, latest_activity: new Date().getTime()};
 
   db.query(query, params, function (error, results) {
     if ( error ) {
@@ -24,12 +24,7 @@ exports.findMatches = function(screenName, searchRadius, location){
         return [result['COUNT(m)'], result.m._data.data];
       });
 
-      console.log(matches);
-
       filterMatches(matches);
-
-      // filterMatchesByDistance(matches);
-      // sortMatchesByLocation(matches);
     }
     //add callback for the request_helper to send the response back to app
   });
@@ -38,28 +33,28 @@ exports.findMatches = function(screenName, searchRadius, location){
 
     var filterByTime = function(matches) {
 
-      // _.each(matches, function(match){
-      //   console.log(match[1].latest_activity);
-      // });
-      var currentTime = Date.now();
+      var currentTime = new Date().getTime();
 
-      var timeFilteredMatches = _.filter(matches, function(match){
-        return (currentTime - match[1].latest_activity <= 3600000);
+      var timeFilteredMatches = [];
+
+      // Filters matches by latest activity
+      _.each(matches, function(match){
+        if (new Date().getTime() -  match[1].latest_activity <= 10800000) { // 3 hours
+          timeFilteredMatches.push(match);
+        }
       });
       
+      // Converts the latest activity of each user a friendly format (i.e., 8 minutes ago, 2 hours ago, etc.)
       _.each(timeFilteredMatches, function(match){
-        match[1].latest_activity = timeago(match[1].latest_activity); 
-      }); 
+        var time = new Date(match[1].latest_activity);
+        match[1].latest_activity = timeago(time);
+      });
 
-      console.log(timeFilteredMatches);
-
-      if ( !!location ) {
-        filterByLocation(matches);
-      } else {
-        //return matches to client
-      }
-
-
+      // if ( !!location ) {
+      //   filterByLocation(timeFilteredMatches);
+      // } else {
+      //   //return timeFilteredMatches to client
+      // }
     };
 
     var filterByLocation = function(matches) {
