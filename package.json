@@ -11,5 +11,10 @@
     "requestify": "^0.1.16",
     "express": "^3.8.1",
     "body-parser": "^1.2.2"
+  },
+  "devDependencies": {
+    "mocha": "^1.18.2",
+    "gulp": "^3.6.1",
+    "should": "~3.3.1"
   }
 }
