@@ -1,3 +1,5 @@
+/*        MODULE DEPENDENCIES       */
+
 var neo4j = require('neo4j');
 var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474'); //Graphene 'tweetup.sb02.stations.graphenedb.com:24789/'
 var twitter = require('./twitter_helpers');
@@ -5,32 +7,13 @@ var chat = require('./chat_helpers');
 var requestify = require('requestify');
 var _ = require('underscore');
 
-/* *************************  */
+/*        DATABASE USER FUNCTIONS       */
 
-exports.addFriendsWithInfo = function(screenName, friendsList) {
+exports.addFriends = function(screenName, friendsList) {
   
   _.each(friendsList, function(friend){
     addUser(friend, false, {user: screenName, friend: friend.screen_name});
   });
-
-};
-
-exports.addFriends = function(screenName, friendsList) {
-
-  var parseList = function(friendsList){
-    for ( var i = 0; i < friendsList.length; i += 100 ) {
-      var list = friendsList.slice(i, i + 100);
-      addFriendToDB(list);
-    }
-  };
-
-  var addFriendToDB = function(list) {
-    _.each(list, function (friend) {
-      addUser(friend, false, {user: screenName, friend: friend}); // friend is id_str
-    });
-  };
-
-  parseList(friendsList);
 
 };
 
@@ -73,7 +56,7 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     if ( error ) {
       console.log (error);
     } else {
-      console.log(user.screen_name + " added to DB");
+      console.log(user.screen_name + ' added to DB');
       if ( relationship ) {
         addFollowingRelationship( relationship.user, relationship.friend );
       }
@@ -102,33 +85,8 @@ var addFollowingRelationship = function ( userName, friendName) {
     if ( error ) {
       console.log (error);
     } else {
-      console.log(userName + " follows " + friendName);
+      console.log(userName + ' follows ' + friendName);
     }
-  });
-
-};
-
-exports.findMatches = function(screenName, callback){
-
-  var query = [ 
-    'MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
-    'WHERE u.screen_name = {screen_name} AND m.app_user = true',
-    'RETURN COUNT(m), m ORDER BY COUNT(m) DESC'
-  ].join('\n');
-                
-  var params = {screen_name:screenName};
-
-  db.query(query, params, function (error, results) {
-    if ( error ) {
-      console.log (error);
-    } else {
-      var matches = results.map(function(result) {
-        return [result['COUNT(m)'], result.m._data.data];
-      });
-      // console.log(matches);
-      callback(matches);
-    }
-    //add callback for the request_helper to send the response back to app
   });
 
 };

@@ -11,6 +11,8 @@
     "requestify": "^0.1.16",
     "express": "^3.8.1",
     "body-parser": "^1.2.2"
+    "geolib": "^2.0.14",
+    "timeago": "^0.1.0"
   },
   "devDependencies": {
     "mocha": "^1.18.2",

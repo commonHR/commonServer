@@ -3,7 +3,7 @@ var neo4j = require('neo4j');
 var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474'); //Graphene 'tweetup.sb02.stations.graphenedb.com:24789/'
 var _ = require('underscore');
 
-/*         CHAT FUNCTIONS            */
+/*        CHAT FUNCTIONS        */
 
 var getConversationID = function( user_one, user_two ) {
 
@@ -13,7 +13,40 @@ var getConversationID = function( user_one, user_two ) {
 
 };
 
-exports.retrieveConversations = function(screenName) {
+exports.retrieveSingleConversation = function(user, match) {
+
+  var conversationID = getConversationID(user, match);
+
+  var params = {
+    'conversationID': conversationID
+  };
+
+  var conversationQuery = [
+    'MATCH (c:Conversation {id:{conversationID}})',
+    'WITH c',
+    'MATCH path=(c)-[*]->(m:Message)',
+    'RETURN collect(m) as messages'
+  ].join('\n'); 
+
+  db.query(conversationQuery, params, function (error, results) {
+    if ( error ) {
+      console.log (error);
+    } else {
+      
+      var messageData = results[0].messages;
+
+      var messages = _.map(messageData, function(message){
+        return message._data.data;
+      });
+
+      var conversation = { screen_name: match, conversation: messages};
+
+      // return conversation;
+    }
+  }); 
+};
+
+exports.retrieveConversations = function(screenName, callback) {
 
   var params = {
     'user': screenName
@@ -23,10 +56,11 @@ exports.retrieveConversations = function(screenName) {
     'MATCH (user:User {screen_name:{user}})',
     'SET user.latest_activity = "'+ new Date().getTime()+'"',
     'WITH user',
-    'MATCH (user)-[:HAS_CONVERSATION]->(c:Conversation)<-[:HAS_CONVERSATION]-(other:User)',
-    'WITH c, other',
+    'MATCH (user)-[:HAS_CONVERSATION]->(c:Conversation)<-[:HAS_CONVERSATION]-(match:User)',
+    'WITH c, match',
     'MATCH path=(c)-[*]->(m:Message)',
-    'RETURN DISTINCT other, collect(m) as messages'
+    'RETURN DISTINCT c.latest_message, match, collect(m) as messages',
+    'ORDER BY c.latest_message DESC'
   ].join('\n'); 
 
 
@@ -38,15 +72,17 @@ exports.retrieveConversations = function(screenName) {
 
       _.each(results, function(result){
         var conversation = {};
-        var user = result.other._data.data.screen_name;
+        var user = result.match._data.data.screen_name;
         var messages = _.map(result.messages, function(message){
           return message._data.data;
         })
-        conversation[user] = messages;
+        conversation.screen_name = user;
+        conversation.conversation = messages;
         conversations.push(conversation);
       });
-    }
 
+      // callback(conversations);
+    }
   }); 
 
 };
@@ -60,13 +96,13 @@ exports.sendMessage = function(message){
     'sender':message.sender, 
     'recipient':message.recipient,
     'text':message.text,
-    'created_at': new Date().getTime(),
-    'time': message.time
+    'time': new Date()
   };
 
   var conversationQuery = [ 
     'MERGE (c:Conversation {id: {conversationID}})',
-    'ON CREATE SET c.created_at = {time}, c.new_conversation = true',
+    'ON MATCH SET c.latest_message = {time}',
+    'ON CREATE SET c.latest_message = {time}, c.new_conversation = true',
     'WITH c', 
     'MATCH (a:User {screen_name: {sender} }), (b:User {screen_name: {recipient} })',
     'CREATE UNIQUE (a)-[:HAS_CONVERSATION]->(c)<-[:HAS_CONVERSATION]-(b)',
@@ -77,7 +113,7 @@ exports.sendMessage = function(message){
     if ( error ) {
       console.log (error);
     } else {
-      console.log("Conversation results", results);
+      console.log('Conversation updated');
       createFirstMessage();
     }
   });
@@ -97,8 +133,10 @@ exports.sendMessage = function(message){
       if ( error ) {
         console.log (error);
       } else {
-        if ( results.length === 0 ) {
+        if ( results.length === 0 ) { //Results will be an empty array if new_conversation = false
           addMessage();
+        } else {
+          console.log('Added first message to the conversation');
         }
       }
     });
@@ -121,7 +159,7 @@ exports.sendMessage = function(message){
       if ( error ) {
         console.log (error);
       } else {
-        console.log("Add message", results);
+        console.log('Message added to the conversation');
       }
     });
   };

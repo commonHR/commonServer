@@ -1,17 +1,15 @@
-/*       MODULE DEPENDENCIES         */
+/*        MODULE DEPENDENCIES       */
 var requestify = require('requestify');
 var user = require('./user_helpers');
 var request = require('./request_helpers');
 var _ = require('underscore');
 
-/*          REQUEST OPTIONS          */
+/*        REQUEST VARIABLES       */
 var showUserURL =  {
   screenName:'https://api.twitter.com/1.1/users/show.json?screen_name=',
   id: 'https://api.twitter.com/1.1/users/show.json?user_id='
-}
-
+};
 var getFriendsURL = 'https://api.twitter.com/1.1/friends/list.json?stringify_ids=true&screen_name=';
-
 var headers = {
   'User-Agent': 'tweetUpApp',
   'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAAK7iXgAAAAAAg1QslCBGGo4H4PgzROllXAK5nwk%3DhMh7822qk7wo7E8BcRWbk5j6gDmOMTtNQo8hZADiuqObTNPF74',
@@ -20,7 +18,7 @@ var headers = {
   'Host': 'api.twitter.com'
 };
 
-/*         TWITTER API FUNCTIONS        */
+/*        TWITTER API FUNCTIONS       */
 
 exports.getUserInfo = function(lookupObject, callback) { //object will have either a screenName or id as key and the corresponding value
 
@@ -41,7 +39,7 @@ exports.getUserInfo = function(lookupObject, callback) { //object will have eith
    })
   .then(function(response){
     response.getBody();
-    userInfo = JSON.parse(response.body);
+    var userInfo = JSON.parse(response.body);
     if ( callback ) callback(userInfo); //callback is response to client with user object
     user.addUser(userInfo, true);
   });
@@ -59,12 +57,11 @@ var getFriends = exports.getFriends = function(screenName, cursor){
   .then(function(response){
     response.getBody();
     var data = JSON.parse(response.body);
-    user.addFriendsWithInfo(screenName, data.users);
+    user.addFriends(screenName, data.users);
     if ( data.next_cursor_str !== '0' ) {
       getFriends(screenName, data.next_cursor_str);
     }
   });
-
 };
 
 
