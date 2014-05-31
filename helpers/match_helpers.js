@@ -12,7 +12,7 @@ exports.findMatches = function(screenName, searchRadius, location){
     'MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
     'WHERE u.screen_name = {screen_name} AND m.app_user = true',
     'SET u.latest_location = {latest_location}, u.latest_activity = {latest_activity}',
-    'RETURN COUNT(m), m, u'
+    'RETURN COUNT(m), m, u',
     'ORDER BY COUNT(m) DESC'
   ].join('\n');
                 
