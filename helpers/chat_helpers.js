@@ -13,9 +13,9 @@ var getConversationID = function( user_one, user_two ) {
 
 };
 
-exports.retrieveSingleConversation = function(user1, user2) {
+exports.retrieveSingleConversation = function(user, match) {
 
-  var conversationID = getConversationID(user1, user2);
+  var conversationID = getConversationID(user, match);
 
   var params = {
     'conversationID': conversationID
@@ -32,11 +32,13 @@ exports.retrieveSingleConversation = function(user1, user2) {
   if ( error ) {
     console.log (error);
   } else {
-
-    var messages = results[0].messages;
-    var conversation = _.map(messages, function(message){
+    // console.log("Results", results);
+    var messageData = results[0].messages;
+    var messages = _.map(messageData, function(message){
       return message._data.data;
     })
+
+    var conversation ({ screen_name: match, conversation: messages});
 
     //return conversation
   }
@@ -56,7 +58,8 @@ exports.retrieveConversations = function(screenName, callback) {
     'MATCH (user)-[:HAS_CONVERSATION]->(c:Conversation)<-[:HAS_CONVERSATION]-(other:User)',
     'WITH c, other',
     'MATCH path=(c)-[*]->(m:Message)',
-    'RETURN DISTINCT other, collect(m) as messages'
+    'RETURN DISTINCT other, collect(m) as messages',
+    'ORDER BY c.time DESC'
   ].join('\n'); 
 
 
@@ -95,13 +98,13 @@ exports.sendMessage = function(message){
     'sender':message.sender, 
     'recipient':message.recipient,
     'text':message.text,
-    // 'created_at': new Date().getTime(),
-    'time': new Date()
+    'time': new Date().getTime()
   };
 
   var conversationQuery = [ 
     'MERGE (c:Conversation {id: {conversationID}})',
-    'ON CREATE SET c.new_conversation = true',
+    'ON MATCH SET c.latest_message = {time}',
+    'ON CREATE SET c.latest_message = {time}, c.new_conversation = true',
     'WITH c', 
     'MATCH (a:User {screen_name: {sender} }), (b:User {screen_name: {recipient} })',
     'CREATE UNIQUE (a)-[:HAS_CONVERSATION]->(c)<-[:HAS_CONVERSATION]-(b)',

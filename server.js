@@ -30,7 +30,14 @@ app.use(function(req, res, next){
 });
 
 // twitter.getUserInfo({screenName: 'marc0au'});
-chat.retrieveConversations("marc0au");
+chat.retrieveSingleConversation("marc0au", "RICEaaron");
+
+// chat.sendMessage({
+// 	sender: 'RICEaaron',
+// 	recipient: 'marc0au',
+// 	text: 'first message',
+// })
+
 
 /*         HANDLE REQUESTS           */
 
