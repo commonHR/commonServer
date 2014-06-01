@@ -31,7 +31,7 @@ app.use(function(req, res, next){
 });
 
 // twitter.getUserInfo({screenName: 'marc0au'});
-chat.retrieveConversations("marc0au");
+chat.retrieveSingleConversation('marc0au', 'nickolaswei');
 
 // match.findMatches('RICEaaron', 1000, '{"latitude": "38.4441", "longitude": "-120.4899"}');
 //location needs to be a JSON object or the database throws a fit

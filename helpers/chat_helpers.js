@@ -32,14 +32,14 @@ exports.retrieveSingleConversation = function(user, match) {
     if ( error ) {
       console.log (error);
     } else {
-      
+      var conversation = {};
       var messageData = results[0].messages;
 
       var messages = _.map(messageData, function(message){
         return message._data.data;
       });
 
-      var conversation = { screen_name: match, conversation: messages};
+      conversation[match] = messages;
 
       // return conversation;
     }
