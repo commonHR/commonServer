@@ -7,7 +7,6 @@ var _  = require('underscore');
 
 exports.findMatches = function(screenName, searchRadius, location){
 
-
   var query = [ 
     'MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
     'WHERE u.screen_name = {screen_name} AND m.app_user = true',
@@ -22,30 +21,15 @@ exports.findMatches = function(screenName, searchRadius, location){
     if ( error ) {
       console.log (error);
     } else {
-      var matches = results.map(function(result) {
-        return [result['COUNT(m)'], result.m._data.data, commonFriendsArray(result.u._data.data.screen_name, result.m._data.data.screen_name)];
+      var matches = [];
+      _.each(results, function(result) {
+        result.m._data.data.no_common_friends = result['COUNT(m)'];
+        matches.push(result.m._data.data);
       });
 
       filterMatches(matches);
     }
-    //add callback for the request_helper to send the response back to app
   });
-
-  var commonFriendsArray = function(userScreenName, otherScreenName){
-    var cfaQuery = ['MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
-    'WHERE u.screen_name = userScreenName} AND m.app_user = true AND m.screen_name = otherScreenName',
-    'RETURN p'
-    ].join('/n');
-    var result=[];
-    db.query(cfaQuery, params, function (error, results) {
-      if ( error ) {
-        console.log (error);
-      } else {
-        result.push();
-     }
-    });
-    return result;
-  };  
 
   var filterMatches = function(matches) {
 
@@ -57,22 +41,19 @@ exports.findMatches = function(screenName, searchRadius, location){
 
       // Filters matches by latest activity
       _.each(matches, function(match){
-        if (new Date().getTime() -  match[1].latest_activity <= 10800000) { // 3 hours
+        if (new Date().getTime() -  match.latest_activity <= 10800000) { // 3 hours
           timeFilteredMatches.push(match);
         }
       });
       
       // Converts the latest activity of each user a friendly format (i.e., 8 minutes ago, 2 hours ago, etc.)
       _.each(timeFilteredMatches, function(match){
-        var time = new Date(match[1].latest_activity);
-        match[1].latest_activity = timeago(time);
+        var time = new Date(match.latest_activity);
+        match.latest_activity = timeago(time);
       });
 
-      if ( !!location ) {
-        filterByLocation(timeFilteredMatches);
-      } else {
-        //return timeFilteredMatches to client
-      }
+      filterByLocation(timeFilteredMatches);
+
     };
 
     var filterByLocation = function(matches) {
@@ -80,22 +61,71 @@ exports.findMatches = function(screenName, searchRadius, location){
       var filteredMatches = [];
 
       _.each(matches, function(match) {
-        console.log(match);
         var userLocation = JSON.parse(location);
-        var matchLocation = JSON.parse(match[1].latest_location);
+        var matchLocation = JSON.parse(match.latest_location);
         var distance = (geolib.getDistance(userLocation, matchLocation)) * 0.000621371 ;//Convert to miles
-
         if ( distance <= searchRadius ) {
           filteredMatches.push(match);
         }
       });
 
-      //return filterdMatches to client
+      updateMatchesWithFriends(filteredMatches);
 
     };
 
     filterByTime(matches);
   };
 
+  var updateMatchesWithFriends = function(matches){
 
+    var matchCount = matches.length;
+
+    if ( matchCount === 0 ) {
+      //callback - return empty set to client
+    } else {
+      _.each(matches, function(match) {
+
+        var friendsQuery = ['MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
+        'WHERE u.screen_name = {user} AND m.screen_name = {match}',
+        'RETURN p',
+        'LIMIT 5'
+        ].join('\n');
+
+        var params = {
+          'user': screenName,
+          'match': match.screen_name
+        };
+        
+        db.query(friendsQuery, params, function (error, results) {
+          if ( error ) {
+            console.log (error);
+          } else {
+            var friends = _.map(results, function(result){
+              return result.p._data.data.screen_name;
+            });
+            match.common_friends = friends;
+            matchCount--;
+            if (matchCount === 0 ) {
+              packageResults(matches);
+            }
+          }
+        });
+      });
+    }
+  }; 
+
+  //Formats results of search before returning to client
+  var packageResults = function(matches) {
+
+    var results = _.map(matches, function(match){
+      var result = {};
+      var name = match.screen_name;
+      var data = match;
+      result[name] = data;
+      return result;
+    });
+
+    console.log(results);
+  //return results to client
+  }; 
 };
