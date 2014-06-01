@@ -68,17 +68,13 @@ exports.retrieveConversations = function(screenName, callback) {
     if ( error ) {
       console.log (error);
     } else {
-      var conversations = [];
-
+      var conversations = {};
       _.each(results, function(result){
-        var conversation = {};
         var user = result.match._data.data.screen_name;
         var messages = _.map(result.messages, function(message){
           return message._data.data;
-        })
-        conversation.screen_name = user;
-        conversation.conversation = messages;
-        conversations.push(conversation);
+        });
+        conversations[user] = messages;
       });
 
       // callback(conversations);
