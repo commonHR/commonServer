@@ -14,8 +14,8 @@ exports.userLogin = function(request, response) {
   console.log(request.body);
 
   var screenName = request.body.screen_name;
-  twitter.getUserInfo({screenName: 'nickolaswei'}, function(user){
-  });
+  // twitter.getUserInfo({screenName: 'nickolaswei'}, function(user){
+  // });
 
   twitter.getUserInfo({screenName: screenName}, function(user){
     response.send(200, 'Login success');
@@ -24,14 +24,11 @@ exports.userLogin = function(request, response) {
 
 exports.findMatches = function(request, response) {
   var screenName = request.body.screen_name;
+  var location = request.body.location;
 
-  match.findMatches(screenName, function(data){
-    var matches = {};
-    _.map(data, function(arr){
-      matches[arr[1].screen_name] = arr[1];
-    });
-    console.log(matches);
+  match.findMatches(screenName, location, function(data){
     response.send(200, matches);
+    };
   });
 };
 
