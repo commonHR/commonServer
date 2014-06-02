@@ -5,7 +5,7 @@ var geolib = require('geolib');
 var timeago = require('timeago');
 var _  = require('underscore');
 
-exports.findMatches = function(screenName, searchRadius, location){
+exports.findMatches = function(screenName, location){
 
   var query = [ 
     'MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
@@ -35,8 +35,6 @@ exports.findMatches = function(screenName, searchRadius, location){
 
     var filterByTime = function(matches) {
 
-      var currentTime = new Date().getTime();
-
       var timeFilteredMatches = [];
 
       // Filters matches by latest activity
@@ -60,11 +58,17 @@ exports.findMatches = function(screenName, searchRadius, location){
 
       var filteredMatches = [];
 
+      var searchRadius = 50; // This is an option that should be set on the front end
+
       _.each(matches, function(match) {
         var userLocation = JSON.parse(location);
         var matchLocation = JSON.parse(match.latest_location);
+
+        console.log(userLocation);
+        console.log(matchLocation);
         var distance = (geolib.getDistance(userLocation, matchLocation)) * 0.000621371 ;//Convert to miles
         if ( distance <= searchRadius ) {
+          match.distance = distance.toFixed(1);
           filteredMatches.push(match);
         }
       });

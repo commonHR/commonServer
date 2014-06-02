@@ -81,11 +81,11 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
 
 };
 
-var addFollowingRelationship = function ( userScreenName, friendID) {
+var addFollowingRelationship = function (userScreenName, friendID) {
 
   var query = [ 
-    'MATCH (u:User {screen_name: {userName}}), (f:User {id_str: {friendID}})',
-    'CREATE UNIQUE (u)-[:FOLLOWS]->(f)'
+    'MERGE (u:User {screen_name: {userName}})-[:FOLLOWS]->(f:User {id_str: {friendID}})',
+    'ON CREATE SET UNIQUE (u)-[:FOLLOWS]->(f)'
   ].join('\n');  
 
   var params = {
