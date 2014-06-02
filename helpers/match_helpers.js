@@ -72,6 +72,7 @@ exports.findMatches = function(screenName, location, callback){
           filteredMatches.push(match);
         }
       });
+      console.log(filteredMatches);
 
       updateMatchesWithFriends(filteredMatches);
 
@@ -121,13 +122,24 @@ exports.findMatches = function(screenName, location, callback){
   //Formats results of search before returning to client
   var packageResults = function(matches) {
 
-    var results = _.map(matches, function(match){
-      var result = {};
-      var name = match.screen_name;
-      var data = match;
-      result[name] = data;
-      return result;
-    });
+    console.log(matches);
+    console.log('hey');
+
+    var results = {};
+
+    _.each(matches, function(match){
+      results[match.screen_name] = match;
+    })
+
+    // var results = _.map(matches, function(match){
+    //   var result = {};
+    //   var name = match.screen_name;
+    //   var data = match;
+    //   result[name] = data;
+    //   return result;
+    // });
+
+    console.log(results);
 
     callback(results);
   }; 
