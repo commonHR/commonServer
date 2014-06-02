@@ -58,14 +58,11 @@ exports.findMatches = function(screenName, location, callback){
 
       var filteredMatches = [];
 
-      var searchRadius = 50; // This is an option that should be set on the front end
+      var searchRadius = 10000; // This is an option that should be set on the front end
 
       _.each(matches, function(match) {
         var userLocation = JSON.parse(location);
         var matchLocation = JSON.parse(match.latest_location);
-
-        console.log(userLocation);
-        console.log(matchLocation);
         var distance = (geolib.getDistance(userLocation, matchLocation)) * 0.000621371 ;//Convert to miles
         if ( distance <= searchRadius ) {
           match.distance = distance.toFixed(1);
@@ -121,13 +118,15 @@ exports.findMatches = function(screenName, location, callback){
   //Formats results of search before returning to client
   var packageResults = function(matches) {
 
-    var results = _.map(matches, function(match){
+    results = {};
+
+    _.each(matches, function(match){
       var result = {};
       var name = match.screen_name;
       var data = match;
-      result[name] = data;
-      return result;
+      results[name] = data;
     });
+
 
     console.log(results);
   }; 
