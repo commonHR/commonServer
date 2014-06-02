@@ -5,7 +5,7 @@ var geolib = require('geolib');
 var timeago = require('timeago');
 var _  = require('underscore');
 
-exports.findMatches = function(screenName, location){
+exports.findMatches = function(screenName, location, callback){
 
   var query = [ 
     'MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
@@ -129,7 +129,6 @@ exports.findMatches = function(screenName, location){
       return result;
     });
 
-    console.log(results);
-  //return results to client
+    callback(results);
   }; 
 };
