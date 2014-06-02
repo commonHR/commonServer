@@ -32,7 +32,7 @@ app.use(function(req, res, next){
 
 // chat.retrieveSingleConversation('marc0au', 'nickolaswei');
 
-// match.findMatches('duncantrussell', '{"latitude": "38.7441", "longitude": "-120.4899"}');
+match.findMatches('marc0au', '{"latitude": "38.7440", "longitude": "-120.4899"}');
 //location needs to be a JSON object or the database throws a fit
 
 

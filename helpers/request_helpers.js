@@ -28,8 +28,8 @@ exports.findMatches = function(request, response) {
 
   match.findMatches(screenName, location, function(data){
     response.send(200, matches);
-    };
-  });
+    }
+  );
 };
 
 exports.sendMessage = function(request, response) {

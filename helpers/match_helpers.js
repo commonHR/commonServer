@@ -129,6 +129,6 @@ exports.findMatches = function(screenName, location, callback){
       return result;
     });
 
-    callback(results);
+    console.log(results);
   }; 
 };
