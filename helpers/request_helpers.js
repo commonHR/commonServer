@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var app = require('../server');
-var db = require('./db_helpers');
+var match = require('./match_helpers');
 var user = require('./user_helpers');
 var twitter = require('./twitter_helpers');
 var chat = require('./chat_helpers');
@@ -25,7 +25,7 @@ exports.userLogin = function(request, response) {
 exports.findMatches = function(request, response) {
   var screenName = request.body.screen_name;
 
-  db.findMatches(screenName, function(data){
+  match.findMatches(screenName, function(data){
     var matches = {};
     _.map(data, function(arr){
       matches[arr[1].screen_name] = arr[1];
@@ -41,7 +41,7 @@ exports.sendMessage = function(request, response) {
 
   var message = request.body.message;
 
-  db.sendMessage(message);
+  chat.sendMessage(message);
   response.send(200, 'Message sent');
 
 };

@@ -18,7 +18,7 @@ var app = express();
 // // parse application/vnd.api+json as json
 // app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-// app.use(express.bodyParser());
+app.use(express.bodyParser());
 
 var port = process.env.PORT || 4568;
 app.listen(port);
