@@ -18,22 +18,17 @@ var headers = {
 
 /*        TWITTER API FUNCTIONS       */
 
-exports.getUserInfo = function(userObject, callback) { //object will have either a screenName or id as key and the corresponding value
+exports.getUserInfo = function(screenName, location, callback) { //object will have either a screenName or id as key and the corresponding value
 
-  requestify.request(showUserURL + userObject.screenName, {
+  requestify.request(showUserURL + screenName, {
     method: 'GET',
     headers: headers,
    })
   .then(function(response){
     response.getBody();
     var userInfo = JSON.parse(response.body);
-
-    if ( !!userObject.currentLocation ) {
-      userInfo.latest_location = userObject.currentLocation; 
-    } else {
-      userInfo.latest_location = '{"latitude": "0", "longitude": "0"}';
-    }
-    // if ( callback ) callback(userInfo); //callback is response to client with user object
+    userInfo.latest_location = location;
+    if ( callback ) callback(userInfo); //callback is response to client with user object
     user.addUser(userInfo, true);
   });
 };

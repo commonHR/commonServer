@@ -14,10 +14,11 @@ exports.userLogin = function(request, response) {
   console.log(request.body);
 
   var screenName = request.body.screen_name;
+  var location = request.body.current_location;
   // twitter.getUserInfo({screenName: 'nickolaswei'}, function(user){
   // });
 
-  twitter.getUserInfo({screenName: screenName}, function(user){
+  twitter.getUserInfo(screenName, location, function(user){
     response.send(200, 'Login success');
   });
 };

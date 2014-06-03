@@ -62,8 +62,11 @@ exports.findMatches = function(screenName, location, callback){
       var searchRadius = 50; // This is an option that should be set on the front end
 
       _.each(matches, function(match) {
+        console.log("HERE",   match)
         var userLocation = JSON.parse(location);
         var matchLocation = JSON.parse(match.latest_location);
+
+
 
         console.log(userLocation);
         console.log(matchLocation);
@@ -130,7 +133,7 @@ exports.findMatches = function(screenName, location, callback){
 
     _.each(matches, function(match){
       results[match.screen_name] = match;
-    })
+    });
 
     // var results = _.map(matches, function(match){
     //   var result = {};
@@ -142,6 +145,6 @@ exports.findMatches = function(screenName, location, callback){
 
     console.log(results);
 
-    callback(results);
+    // callback(results);
   }; 
 };

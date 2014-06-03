@@ -15,7 +15,7 @@ exports.addFriends = function(screenName, friendsList) {
   _.each(friendsList, function(friend){
     addUser(friend, false, {user: screenName, friend: friend.screen_name});
   });
-
+  
 };
 
 var addUser = exports.addUser = function(user, appUser, relationship) { //appUser is a boolean indicating whether or not this person is a user of our app or not
@@ -26,20 +26,20 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'screen_name': user.screen_name,
     'description': user.description,
     'profile_image_url': user.profile_image_url,
+    'location': user.location || 'unknown',
     'app_user': (!!appUser),
     'latest_activity': new Date().getTime(),
-    'location': user.location || 'unknown',
-    'latest_location': user.latest_location
+    'latest_location': !!user.latest_location ? user.latest_location : '{"latitude": "0", "longitude": "0"}' 
   };
 
-  var query;
   var appUserQuery = [  
     'MERGE (user:User {screen_name: {screen_name}})',
     'ON MATCH SET user.id_str = {id_str}, user.screen_name = {screen_name}, user.description = {description},',
     'user.profile_image_url = {profile_image_url}, user.app_user = {app_user}, user.location = {location},',
     'user.latest_activity = {latest_activity} ON CREATE SET user.id_str= {id_str}, user.name = {name},',
     'user.screen_name = {screen_name}, user.description = {description}, user.profile_image_url = {profile_image_url},',
-    'user.app_user = {app_user}, user.location = {location}, user.latest_activity = {latest_activity} RETURN user'
+    'user.location = {location}, user.app_user = {app_user}, user.latest_activity = {latest_activity},',
+    'user.latest_location = {latest_location} RETURN user'
   ].join('\n');
 
   var friendQuery = [
@@ -47,6 +47,8 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'ON CREATE SET user.id_str= {id_str}, user.name = {name}, user.screen_name = {screen_name}, user.description = {description},',
      'user.profile_image_url = {profile_image_url}, user.app_user = {app_user}, user.location = {location} RETURN user'   
   ].join('\n');
+
+  var query;
                           
   if ( !!appUser ) {
     query = appUserQuery;
@@ -110,13 +112,4 @@ var addFollowingRelationship = function (userName, friendName) {
     }
   });
 
-};
-
-exports.updateUserProperty = function (screenName, properties) { 
-
-}; 
-
-exports.deleteAppUser = function(screenName){
-  //deletes a user node and all relationships if a user decides to delete their account
-  //also need to delete a friend node if no other users are following that person
 };

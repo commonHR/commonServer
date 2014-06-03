@@ -32,7 +32,8 @@ app.use(function(req, res, next){
 
 // chat.retrieveSingleConversation('marc0au', 'nickolaswei');
 
-// match.findMatches('ChrisRyanPhD', '{"latitude": "37.9841", "longitude": "-122.80699"}');
+// match.findMatches('RICEaaron', '{"latitude": "37.9841", "longitude": "-122.80699"}');
+// match.findMatches('RICEaaron', '{"latitude": "0", "longitude": "0"}');
 //location needs to be a JSON object or the database throws a fit
 
 
@@ -42,8 +43,8 @@ app.use(function(req, res, next){
 // 	text: 'coconuts.  i like coconuts.',
 // });
 
-twitter.getUserInfo({screenName: 'RICEaaron'});
-// twitter.getUserInfo({screenName: 'RICEaaron'});
+// twitter.getUserInfo('RICEaaron', '{"latitude": "37.9841", "longitude": "-122.80699"}');	
+twitter.getUserInfo('redban');
 
 
 /*         HANDLE REQUESTS           */
