@@ -6,7 +6,7 @@ var twitter = require('./twitter_helpers');
 var chat = require('./chat_helpers');
 
 exports.home = function(request, response) {
-  response.redirect('http://www.twitter.com');	
+  response.redirect('http://www.twitter.com');  
 }
 
 exports.userLogin = function(request, response) {
@@ -27,9 +27,8 @@ exports.findMatches = function(request, response) {
   var location = request.body.location;
 
   match.findMatches(screenName, location, function(data){
-    response.send(200, matches);
-    }
-  );
+    response.send(200, data);
+  });
 };
 
 exports.sendMessage = function(request, response) {
