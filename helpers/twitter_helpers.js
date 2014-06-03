@@ -2,11 +2,14 @@
 var requestify = require('requestify');
 var user = require('./user_helpers');
 var request = require('./request_helpers'); 
+var _  = require('underscore');
+var semantic = require('./semantic_helpers');
 
 /*        TWITTER API VARIABLES       */
 
 var showUserURL = 'https://api.twitter.com/1.1/users/show.json?skip_status=true&screen_name=';
 var getFriendsURL = 'https://api.twitter.com/1.1/friends/list.json?stringify_ids=true&count=200&skip_status=true&screen_name=';
+var getTweetsURL = 'https://api.twitter.com/1.1/statuses/user_timeline.json?count=200&screen_name=';
 var headers = {
   'User-Agent': 'tweetUpApp',
   'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAAK7iXgAAAAAAg1QslCBGGo4H4PgzROllXAK5nwk%3DhMh7822qk7wo7E8BcRWbk5j6gDmOMTtNQo8hZADiuqObTNPF74',
@@ -49,3 +52,24 @@ var getFriends = exports.getFriends = function(screenName, cursor){
     }
   });
 };
+
+var getTweets = exports.getTweets = function(screenName) {
+
+    requestify.request(getTweetsURL + screenName, {
+    method: 'GET',
+    headers: headers
+  })
+  .then(function(response){
+    response.getBody();
+    var tweets = JSON.parse(response.body);
+    semantic.parseTweets(screenName, tweets);
+  });
+}
+
+
+
+
+
+
+
+
