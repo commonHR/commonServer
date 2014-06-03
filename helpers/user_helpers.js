@@ -19,7 +19,7 @@ exports.addFriends = function(screenName, friendsList) {
 };
 
 var addUser = exports.addUser = function(user, appUser, relationship) { //appUser is a boolean indicating whether or not this person is a user of our app or not
-  
+
   var params = {
     'id_str': user.id_str,
     'name': user.name,
@@ -28,23 +28,24 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'profile_image_url': user.profile_image_url,
     'app_user': (!!appUser),
     'latest_activity': new Date().getTime(),
-    'location': user.location || 'unknown'
+    'location': user.location || 'unknown',
+    'latest_location': user.latest_location
   };
 
   var query;
   var appUserQuery = [  
-    'MERGE (u:User {screen_name: {screen_name}})',
-    'ON MATCH SET u.id_str = {id_str}, u.screen_name = {screen_name}, u.description = {description},',
-    'u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location},',
-    'u.latest_activity = {latest_activity} ON CREATE SET u.id_str= {id_str}, u.name = {name},',
-    'u.screen_name = {screen_name}, u.description = {description}, u.profile_image_url = {profile_image_url},',
-    'u.app_user = {app_user}, u.location = {location}, u.latest_activity = {latest_activity} RETURN u'
+    'MERGE (user:User {screen_name: {screen_name}})',
+    'ON MATCH SET user.id_str = {id_str}, user.screen_name = {screen_name}, user.description = {description},',
+    'user.profile_image_url = {profile_image_url}, user.app_user = {app_user}, user.location = {location},',
+    'user.latest_activity = {latest_activity} ON CREATE SET user.id_str= {id_str}, user.name = {name},',
+    'user.screen_name = {screen_name}, user.description = {description}, user.profile_image_url = {profile_image_url},',
+    'user.app_user = {app_user}, user.location = {location}, user.latest_activity = {latest_activity} RETURN user'
   ].join('\n');
 
   var friendQuery = [
-    'MERGE (u:User {screen_name: {screen_name}})',
-    'ON CREATE SET u.id_str= {id_str}, u.name = {name}, u.screen_name = {screen_name}, u.description = {description},',
-     'u.profile_image_url = {profile_image_url}, u.app_user = {app_user}, u.location = {location} RETURN u'   
+    'MERGE (user:User {screen_name: {screen_name}})',
+    'ON CREATE SET user.id_str= {id_str}, user.name = {name}, user.screen_name = {screen_name}, user.description = {description},',
+     'user.profile_image_url = {profile_image_url}, user.app_user = {app_user}, user.location = {location} RETURN user'   
   ].join('\n');
                           
   if ( !!appUser ) {
@@ -70,11 +71,30 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
 
 };
 
-var addFollowingRelationship = function ( userName, friendName) {
+var resetFollowingRelationships = function (userName) {
+
+  var query = [
+    'MATCH (user:User {screen_name: {userName})-[relationship:FOLLOWS]->(friend)',
+    'DELETE relationship'
+    ].join('\n');
+
+  var params = {userName: userName};
+
+  db.query(query, params, function (error, results) {
+    if ( error ) {
+      console.log (error);
+    } else {
+      console.log(userName + ' follows ' + friendName);
+    }
+  });
+
+}
+
+var addFollowingRelationship = function (userName, friendName) {
 
   var query = [ 
-    'MATCH (u:User {screen_name: {userName}}), (f:User {screen_name: {friendName}})',
-    'CREATE UNIQUE (u)-[:FOLLOWS]->(f)'
+    'MATCH (user:User {screen_name: {userName}}), (friend:User {screen_name: {friendName}})',
+    'CREATE UNIQUE (user)-[:FOLLOWS]->(friend)'
   ].join('\n');  
 
   var params = {

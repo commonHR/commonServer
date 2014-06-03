@@ -9,11 +9,11 @@ var _  = require('underscore');
 exports.findMatches = function(screenName, location, callback){
 
   var query = [ 
-    'MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
-    'WHERE u.screen_name = {screen_name} AND m.app_user = true',
-    'SET u.latest_location = {latest_location}, u.latest_activity = {latest_activity}',
-    'RETURN COUNT(m), m, u',
-    'ORDER BY COUNT(m) DESC'
+    'MATCH (user:User)-[:FOLLOWS]->(friend:User)<-[:FOLLOWS]-(match:User)',
+    'WHERE user.screen_name = {screen_name} AND match.app_user = true',
+    'SET user.latest_location = {latest_location}, user.latest_activity = {latest_activity}',
+    'RETURN COUNT(match), match, user',
+    'ORDER BY COUNT(match) DESC'
   ].join('\n');
                 
   var params = {screen_name:screenName, latest_location: location, latest_activity: new Date().getTime()};
@@ -24,8 +24,8 @@ exports.findMatches = function(screenName, location, callback){
     } else {
       var matches = [];
       _.each(results, function(result) {
-        result.m._data.data.no_common_friends = result['COUNT(m)'];
-        matches.push(result.m._data.data);
+        result.match._data.data.no_common_friends = result['COUNT(match)'];
+        matches.push(result.match._data.data);
       });
 
       filterMatches(matches);
@@ -91,8 +91,8 @@ exports.findMatches = function(screenName, location, callback){
     } else {
       _.each(matches, function(match) {
 
-        var friendsQuery = ['MATCH (u:User)-[:FOLLOWS]->(p:User)<-[:FOLLOWS]-(m)',
-        'WHERE u.screen_name = {user} AND m.screen_name = {match}',
+        var friendsQuery = ['MATCH (user:User)-[:FOLLOWS]->(friend:User)<-[:FOLLOWS]-(match)',
+        'WHERE user.screen_name = {user} AND match.screen_name = {match}',
         'RETURN p',
         'LIMIT 5'
         ].join('\n');
@@ -107,7 +107,7 @@ exports.findMatches = function(screenName, location, callback){
             console.log (error);
           } else {
             var friends = _.map(results, function(result){
-              return result.p._data.data.screen_name;
+              return result.friend._data.data.screen_name;
             });
             match.common_friends = friends;
             matchCount--;
