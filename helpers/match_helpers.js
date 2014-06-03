@@ -1,12 +1,7 @@
 /*        MODULE DEPENDENCIES       */
 var neo4j = require('neo4j');
-<<<<<<< HEAD
 // var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
 var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
-=======
-var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
-// var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
->>>>>>> fc88c4a6cde953bde244e51e5f35b397107103ac
 var geolib = require('geolib');
 var timeago = require('timeago');
 var _  = require('underscore');
@@ -63,11 +58,8 @@ exports.findMatches = function(screenName, location, callback){
     var filterByLocation = function(matches) {
 
       var filteredMatches = [];
-<<<<<<< HEAD
-      var searchRadius = 50; // This is an option that should be set on the front end
-=======
+
       var searchRadius = 50000; // This is an option that should be set on the front end
->>>>>>> fc88c4a6cde953bde244e51e5f35b397107103ac
 
       _.each(matches, function(match) {
         var userLocation = JSON.parse(location);
