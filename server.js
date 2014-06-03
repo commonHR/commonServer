@@ -30,7 +30,8 @@ app.use(function(req, res, next){
   next();
 });
 
-// chat.retrieveSingleConversation('marc0au', 'nickolaswei');
+// chat.retrieveSingleConversation('duncantrussell', 'RICEaaron');
+chat.retrieveConversations('RICEaaron');
 
 // match.findMatches('RICEaaron', '{"latitude": "37.9841", "longitude": "-122.80699"}');
 // match.findMatches('RICEaaron', '{"latitude": "0", "longitude": "0"}');
@@ -38,13 +39,13 @@ app.use(function(req, res, next){
 
 
 // chat.sendMessage({
-// 	sender: 'marc0au',
-// 	recipient: 'nickolaswei',
-// 	text: 'coconuts.  i like coconuts.',
+// 	sender: 'RICEaaron',
+// 	recipient: 'marc0au',
+// 	text: 'There is always money in the banana stand'
 // });
 
 // twitter.getUserInfo('RICEaaron', '{"latitude": "37.9841", "longitude": "-122.80699"}');	
-twitter.getUserInfo('Onnit');
+// twitter.getUserInfo('marc0au');
 
 
 /*         HANDLE REQUESTS           */

@@ -45,7 +45,7 @@ exports.findMatches = function(screenName, location, callback){
         }
       });
       
-      // Converts the latest activity of each user a friendly format (i.e., 8 minutes ago, 2 hours ago, etc.)
+      // Converts the latest activity in user-friendly format (i.e., 8 minutes ago, 2 hours ago, etc.)
       _.each(timeFilteredMatches, function(match){
         var time = new Date(match.latest_activity);
         match.latest_activity = timeago(time);
@@ -58,25 +58,18 @@ exports.findMatches = function(screenName, location, callback){
     var filterByLocation = function(matches) {
 
       var filteredMatches = [];
-
       var searchRadius = 50; // This is an option that should be set on the front end
 
       _.each(matches, function(match) {
-        console.log("HERE",   match)
         var userLocation = JSON.parse(location);
         var matchLocation = JSON.parse(match.latest_location);
-
-
-
-        console.log(userLocation);
-        console.log(matchLocation);
         var distance = (geolib.getDistance(userLocation, matchLocation)) * 0.000621371 ;//Convert to miles
+
         if ( distance <= searchRadius ) {
           match.distance = distance.toFixed(1);
           filteredMatches.push(match);
         }
       });
-      console.log(filteredMatches);
 
       updateMatchesWithFriends(filteredMatches);
 
@@ -90,14 +83,15 @@ exports.findMatches = function(screenName, location, callback){
     var matchCount = matches.length;
 
     if ( matchCount === 0 ) {
-      //callback - return empty set to client
+      packageResults(matches);
     } else {
       _.each(matches, function(match) {
 
-        var friendsQuery = ['MATCH (user:User)-[:FOLLOWS]->(friend:User)<-[:FOLLOWS]-(match)',
-        'WHERE user.screen_name = {user} AND match.screen_name = {match}',
-        'RETURN p',
-        'LIMIT 5'
+        var friendsQuery = [
+          'MATCH (user:User)-[:FOLLOWS]->(friend:User)<-[:FOLLOWS]-(match)',
+          'WHERE user.screen_name = {user} AND match.screen_name = {match}',
+          'RETURN friend',
+          'LIMIT 5'
         ].join('\n');
 
         var params = {
@@ -123,11 +117,7 @@ exports.findMatches = function(screenName, location, callback){
     }
   }; 
 
-  //Formats results of search before returning to client
   var packageResults = function(matches) {
-
-    console.log(matches);
-    console.log('hey');
 
     var results = {};
 
@@ -135,16 +125,6 @@ exports.findMatches = function(screenName, location, callback){
       results[match.screen_name] = match;
     });
 
-    // var results = _.map(matches, function(match){
-    //   var result = {};
-    //   var name = match.screen_name;
-    //   var data = match;
-    //   result[name] = data;
-    //   return result;
-    // });
-
-    console.log(results);
-
-    // callback(results);
+    callback(results);
   }; 
 };

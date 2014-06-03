@@ -23,10 +23,10 @@ exports.retrieveSingleConversation = function(user, match) {
   };
 
   var conversationQuery = [
-    'MATCH (c:Conversation {id:{conversationID}})',
-    'WITH c',
-    'MATCH path=(c)-[*]->(m:Message)',
-    'RETURN collect(m) as messages'
+    'MATCH (conversation:Conversation {id:{conversationID}})',
+    'WITH conversation',
+    'MATCH path=(conversation)-[*]->(message:Message)',
+    'RETURN collect(message) as messages'
   ].join('\n'); 
 
   db.query(conversationQuery, params, function (error, results) {
@@ -57,11 +57,11 @@ exports.retrieveConversations = function(screenName, callback) {
     'MATCH (user:User {screen_name:{user}})',
     'SET user.latest_activity = "'+ new Date().getTime()+'"',
     'WITH user',
-    'MATCH (user)-[:HAS_CONVERSATION]->(c:Conversation)<-[:HAS_CONVERSATION]-(match:User)',
-    'WITH c, match',
-    'MATCH path=(c)-[*]->(m:Message)',
-    'RETURN DISTINCT c.latest_message, match, collect(m) as messages',
-    'ORDER BY c.latest_message DESC'
+    'MATCH (user)-[:HAS_CONVERSATION]->(conversation:Conversation)<-[:HAS_CONVERSATION]-(match:User)',
+    'WITH conversation, match',
+    'MATCH path=(conversation)-[*]->(match:Message)',
+    'RETURN DISTINCT conversation.latest_message, match, collect(match) as messages',
+    'ORDER BY conversation.latest_message DESC'
   ].join('\n'); 
 
 
@@ -77,6 +77,8 @@ exports.retrieveConversations = function(screenName, callback) {
         });
         conversations[user] = messages;
       });
+
+      console.log(conversations);
 
       // callback(conversations);
     }
@@ -97,13 +99,13 @@ exports.sendMessage = function(message){
   };
 
   var conversationQuery = [ 
-    'MERGE (c:Conversation {id: {conversationID}})',
-    'ON MATCH SET c.latest_message = {time}',
-    'ON CREATE SET c.latest_message = {time}, c.new_conversation = true',
-    'WITH c', 
-    'MATCH (a:User {screen_name: {sender} }), (b:User {screen_name: {recipient} })',
-    'CREATE UNIQUE (a)-[:HAS_CONVERSATION]->(c)<-[:HAS_CONVERSATION]-(b)',
-    'RETURN c'
+    'MERGE (conversation:Conversation {id: {conversationID}})',
+    'ON MATCH SET conversation.latest_message = {time}',
+    'ON CREATE SET conversation.latest_message = {time}, conversation.new_conversation = true',
+    'WITH conversation', 
+    'MATCH (sender:User {screen_name: {sender} }), (recipient:User {screen_name: {recipient} })',
+    'CREATE UNIQUE (sender)-[:HAS_CONVERSATION]->(conversation)<-[:HAS_CONVERSATION]-(recipient)',
+    'RETURN conversation'
   ].join('\n');  
 
   db.query(conversationQuery, params, function (error, results) {
@@ -119,10 +121,10 @@ exports.sendMessage = function(message){
   var createFirstMessage = function() {
     
     var firstMessageQuery = [
-      'MATCH (c:Conversation {id:{conversationID} , new_conversation: true})',
-      'SET c.new_conversation = false',
-      'CREATE UNIQUE (c)-[:CONTAINS_MESSAGE]->(m:Message {sender:{sender}, recipient:{recipient}, text:{text}, time:{time}})',
-      'RETURN m,c'
+      'MATCH (conversation:Conversation {id:{conversationID} , new_conversation: true})',
+      'SET conversation.new_conversation = false',
+      'CREATE UNIQUE (conversation)-[:CONTAINS_MESSAGE]->(message:Message {sender:{sender}, recipient:{recipient}, text:{text}, time:{time}})',
+      'RETURN message, conversation'
     ].join('\n');
 
 
@@ -143,13 +145,14 @@ exports.sendMessage = function(message){
   var addMessage = function(){
 
     var messageQuery = [
-      'MATCH (c:Conversation {id:{conversationID}, new_conversation: false})',
-      'WITH c',
-      'MATCH (c)-[r:CONTAINS_MESSAGE]->(m2:Message)',
-      'DELETE r',
-      'WITH c, m2',
-      'CREATE UNIQUE (c)-[:CONTAINS_MESSAGE]->(m:Message {sender:{sender}, recipient:{recipient}, text:{text}, time:{time}})-[:CONTAINS_MESSAGE]->(m2)',
-      'RETURN m,c'
+      'MATCH (conversation:Conversation {id:{conversationID}, new_conversation: false})',
+      'WITH conversation',
+      'MATCH (conversation)-[relationship:CONTAINS_MESSAGE]->(message2:Message)',
+      'DELETE relationship',
+      'WITH conversation, message2',
+      'CREATE UNIQUE (conversation)-[:CONTAINS_MESSAGE]->(message:Message {sender:{sender},',
+      'recipient:{recipient}, text:{text}, time:{time}})-[:CONTAINS_MESSAGE]->(message2)',
+      'RETURN message, conversation'
     ].join('\n');
 
     db.query(messageQuery, params, function (error, results) {

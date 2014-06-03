@@ -1,8 +1,7 @@
 /*        MODULE DEPENDENCIES       */
 var requestify = require('requestify');
 var user = require('./user_helpers');
-var request = require('./request_helpers');
-var _ = require('underscore');
+var request = require('./request_helpers'); 
 
 /*        TWITTER API VARIABLES       */
 
@@ -18,7 +17,7 @@ var headers = {
 
 /*        TWITTER API FUNCTIONS       */
 
-exports.getUserInfo = function(screenName, currentLocation, callback) { //object will have either a screenName or id as key and the corresponding value
+exports.getUserInfo = function(screenName, currentLocation, callback) {
 
   requestify.request(showUserURL + screenName, {
     method: 'GET',
@@ -32,7 +31,6 @@ exports.getUserInfo = function(screenName, currentLocation, callback) { //object
     user.addUser(userInfo, true);
   });
 };
-
 
 var getFriends = exports.getFriends = function(screenName, cursor){
 
@@ -51,5 +49,3 @@ var getFriends = exports.getFriends = function(screenName, cursor){
     }
   });
 };
-
-
