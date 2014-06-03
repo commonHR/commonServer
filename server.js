@@ -32,7 +32,7 @@ app.use(function(req, res, next){
 
 // chat.retrieveSingleConversation('marc0au', 'nickolaswei');
 
-match.findMatches('joerogan', '{"latitude": "37.9841", "longitude": "-122.80699"}');
+// match.findMatches('joerogan', '{"latitude": "37.9841", "longitude": "-122.80699"}');
 //location needs to be a JSON object or the database throws a fit
 
 
@@ -42,7 +42,7 @@ match.findMatches('joerogan', '{"latitude": "37.9841", "longitude": "-122.80699"
 // 	text: 'coconuts.  i like coconuts.',
 // });
 
-// twitter.getUserInfo({screenName: 'RICEaaron'});
+twitter.getUserInfo({screenName: 'billburr'});
 
 
 /*         HANDLE REQUESTS           */

@@ -1,6 +1,7 @@
 /*       MODULE DEPENDENCIES         */
 var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474'); //Graphene 'tweetup.sb02.stations.graphenedb.com:24789/'
+// var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
+var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
 var _ = require('underscore');
 
 /*        CHAT FUNCTIONS        */
