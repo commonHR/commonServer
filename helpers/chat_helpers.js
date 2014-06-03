@@ -22,14 +22,14 @@ exports.retrieveSingleConversation = function(user, match) {
     'conversationID': conversationID
   };
 
-  var conversationQuery = [
+  var query = [
     'MATCH (conversation:Conversation {id:{conversationID}})',
     'WITH conversation',
     'MATCH path=(conversation)-[*]->(message:Message)',
     'RETURN collect(message) as messages'
   ].join('\n'); 
 
-  db.query(conversationQuery, params, function (error, results) {
+  db.query(query, params, function (error, results) {
     if ( error ) {
       console.log (error);
     } else {
@@ -53,19 +53,18 @@ exports.retrieveConversations = function(screenName, callback) {
     'user': screenName
   };
 
-  var retrieveMessagesQuery = [
+  var query = [
     'MATCH (user:User {screen_name:{user}})',
     'SET user.latest_activity = "'+ new Date().getTime()+'"',
     'WITH user',
     'MATCH (user)-[:HAS_CONVERSATION]->(conversation:Conversation)<-[:HAS_CONVERSATION]-(match:User)',
     'WITH conversation, match',
-    'MATCH path=(conversation)-[*]->(match:Message)',
-    'RETURN DISTINCT conversation.latest_message, match, collect(match) as messages',
+    'MATCH path=(conversation)-[*]->(message:Message)',
+    'RETURN DISTINCT conversation.latest_message, match, collect(message) as messages',
     'ORDER BY conversation.latest_message DESC'
-  ].join('\n'); 
+  ].join('\n');
 
-
-  db.query(retrieveMessagesQuery, params, function (error, results) {
+  db.query(query, params, function (error, results) {
     if ( error ) {
       console.log (error);
     } else {
@@ -77,8 +76,6 @@ exports.retrieveConversations = function(screenName, callback) {
         });
         conversations[user] = messages;
       });
-
-      console.log(conversations);
 
       // callback(conversations);
     }
