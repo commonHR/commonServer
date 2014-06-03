@@ -1,7 +1,12 @@
 /*       MODULE DEPENDENCIES         */
 var neo4j = require('neo4j');
+<<<<<<< HEAD
 // var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
 var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
+=======
+var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
+// var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
+>>>>>>> fc88c4a6cde953bde244e51e5f35b397107103ac
 var _ = require('underscore');
 
 /*        CHAT FUNCTIONS        */
@@ -62,7 +67,12 @@ exports.retrieveConversations = function(screenName, callback) {
     'MATCH path=(conversation)-[*]->(message:Message)',
     'RETURN DISTINCT conversation.latest_message, match, collect(message) as messages',
     'ORDER BY conversation.latest_message DESC'
+<<<<<<< HEAD
   ].join('\n');
+=======
+  ].join('\n'); 
+
+>>>>>>> fc88c4a6cde953bde244e51e5f35b397107103ac
 
   db.query(query, params, function (error, results) {
     if ( error ) {
@@ -70,14 +80,15 @@ exports.retrieveConversations = function(screenName, callback) {
     } else {
       var conversations = {};
       _.each(results, function(result){
-        var user = result.match._data.data.screen_name;
+        var match = result.match._data.data;
+        var screen_name = result.match._data.data.screen_name;
         var messages = _.map(result.messages, function(message){
           return message._data.data;
         });
-        conversations[user] = messages;
+        conversations[screen_name] = {match: match, messages: messages};
       });
 
-      // callback(conversations);
+      callback(conversations);
     }
   }); 
 
@@ -147,8 +158,12 @@ exports.sendMessage = function(message){
       'MATCH (conversation)-[relationship:CONTAINS_MESSAGE]->(message2:Message)',
       'DELETE relationship',
       'WITH conversation, message2',
+<<<<<<< HEAD
       'CREATE UNIQUE (conversation)-[:CONTAINS_MESSAGE]->(message:Message {sender:{sender},',
       'recipient:{recipient}, text:{text}, time:{time}})-[:CONTAINS_MESSAGE]->(message2)',
+=======
+      'CREATE UNIQUE (conversation)-[:CONTAINS_MESSAGE]->(message:Message {sender:{sender}, recipient:{recipient}, text:{text}, time:{time}})-[:CONTAINS_MESSAGE]->(message2)',
+>>>>>>> fc88c4a6cde953bde244e51e5f35b397107103ac
       'RETURN message, conversation'
     ].join('\n');
 
