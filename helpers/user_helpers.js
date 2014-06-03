@@ -29,7 +29,7 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'location': user.location || 'unknown',
     'app_user': (!!appUser),
     'latest_activity': new Date().getTime(),
-    'latest_location': !!user.latest_location ? user.latest_location : '{"latitude": "0", "longitude": "0"}' 
+    'latest_location': !!user.latest_location ? user.latest_location : '{"latitude": "42.3314", "longitude": "83.0458"}' 
   };
 
   var appUserQuery = [  
