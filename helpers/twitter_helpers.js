@@ -18,7 +18,7 @@ var headers = {
 
 /*        TWITTER API FUNCTIONS       */
 
-exports.getUserInfo = function(screenName, location, callback) { //object will have either a screenName or id as key and the corresponding value
+exports.getUserInfo = function(screenName, currentLocation, callback) { //object will have either a screenName or id as key and the corresponding value
 
   requestify.request(showUserURL + screenName, {
     method: 'GET',
@@ -27,7 +27,7 @@ exports.getUserInfo = function(screenName, location, callback) { //object will h
   .then(function(response){
     response.getBody();
     var userInfo = JSON.parse(response.body);
-    userInfo.latest_location = location;
+    userInfo.latest_location = currentLocation;
     if ( callback ) callback(userInfo); //callback is response to client with user object
     user.addUser(userInfo, true);
   });

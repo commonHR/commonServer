@@ -24,10 +24,10 @@ exports.userLogin = function(request, response) {
 };
 
 exports.findMatches = function(request, response) {
-  var screenName = request.body.screen_name;
-  var location = request.body.location;
+  var screenName = request.body.screenName;
+  var currentLocation = request.body.currentLocation;
 
-  match.findMatches(screenName, location, function(data){
+  match.findMatches(screenName, currentLocation, function(data){
     response.send(200, data);
   });
 };
