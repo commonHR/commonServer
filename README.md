@@ -18,9 +18,6 @@ Screenshots
 Login with Twitter
 ![](http://i58.tinypic.com/34sfhtu.png)
 
-Home page
-![](http://i60.tinypic.com/3587v2v.png)
-
 Match results
 ![](http://i59.tinypic.com/2418j1e.png)
 
