@@ -44,7 +44,7 @@ app.use(function(req, res, next){
 // });
 
 // twitter.getUserInfo('RICEaaron', '{"latitude": "37.9841", "longitude": "-122.80699"}');	
-twitter.getUserInfo('redban');
+twitter.getUserInfo('Onnit');
 
 
 /*         HANDLE REQUESTS           */

@@ -36,16 +36,16 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     'MERGE (user:User {screen_name: {screen_name}})',
     'ON MATCH SET user.id_str = {id_str}, user.screen_name = {screen_name}, user.description = {description},',
     'user.profile_image_url = {profile_image_url}, user.app_user = {app_user}, user.location = {location},',
-    'user.latest_activity = {latest_activity} ON CREATE SET user.id_str= {id_str}, user.name = {name},',
-    'user.screen_name = {screen_name}, user.description = {description}, user.profile_image_url = {profile_image_url},',
-    'user.location = {location}, user.app_user = {app_user}, user.latest_activity = {latest_activity},',
-    'user.latest_location = {latest_location} RETURN user'
+    'user.latest_activity = {latest_activity}, user.latest_location = {latest_location}',
+    'ON CREATE SET user.id_str= {id_str}, user.name = {name}, user.screen_name = {screen_name},',
+    'user.description = {description}, user.profile_image_url = {profile_image_url}, user.location = {location},',
+    'user.app_user = {app_user}, user.latest_activity = {latest_activity}, user.latest_location = {latest_location} RETURN user'
   ].join('\n');
 
   var friendQuery = [
     'MERGE (user:User {screen_name: {screen_name}})',
     'ON CREATE SET user.id_str= {id_str}, user.name = {name}, user.screen_name = {screen_name}, user.description = {description},',
-     'user.profile_image_url = {profile_image_url}, user.app_user = {app_user}, user.location = {location} RETURN user'   
+    'user.profile_image_url = {profile_image_url}, user.app_user = {app_user}, user.location = {location} RETURN user'   
   ].join('\n');
 
   var query;
