@@ -15,7 +15,7 @@ var getConversationID = function( user_one, user_two ) {
 
 };
 
-exports.retrieveSingleConversation = function(user, match) {
+exports.retrieveSingleConversation = function(user, match, callback) {
 
   var conversationID = getConversationID(user, match);
 
@@ -43,7 +43,7 @@ exports.retrieveSingleConversation = function(user, match) {
 
       conversation[match] = messages;
 
-      // return conversation;
+      callback(conversation);
     }
   }); 
 };
