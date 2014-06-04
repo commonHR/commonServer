@@ -36,10 +36,10 @@ exports.parseTweets = function(screenName, tweets) {
   });
 
   console.log('inside parseTweets semantic helpers');
+  console.log('userdoc', userDoc);
   var tf = calculateTF(userDoc);
-  //console.log(userDoc);
-  //console.log(tf);
-  return userDoc;
+  
+  return tf;
 };
 
 var addUserDoc = exports.addUserDoc = function(screenName, userDoc) { 
@@ -73,9 +73,20 @@ var calculateTF = exports.calculateTF = function(userDoc){
 }  
 
 
-var calculateITF = exports.calculateITF = function(){
+var calculateIDF = exports.calculateCorpus = function(userDocs){
   var corpus = {};
-  //foreach match, get parsed tweets
   //foreach parsed tweet add it to corpus  
+  _.each(userDocs, function(userdoc){
+    _.each(userdoc, function(value, key, collection){
+      if (corpus[value]){
+        corpus[value] += key;
+      } 
+      else {
+        corpus[value] = key;
+      }
+    });
+  });
+  var totalNumOfDocs = userDocs.length;
+  var docsTermAppears = 0;
   return corpus;
 }

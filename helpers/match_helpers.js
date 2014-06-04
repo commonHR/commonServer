@@ -7,6 +7,7 @@ var timeago = require('timeago');
 var _  = require('underscore');
 var twitter = require('./twitter_helpers');
 var Q = require('q');
+var semantic = require('./semantic_helpers');
 
 exports.findMatches = function(screenName, location, callback){
 
@@ -29,18 +30,6 @@ exports.findMatches = function(screenName, location, callback){
         result.match._data.data.no_common_friends = result['COUNT(match)'];
         matches.push(result.match._data.data);
       });
-
-      Q.all()
-        matches.forEach(function (match) {
-          var test = twitter.getTweets(match.screen_name);
-          console.log(test);
-      });
-
-      //call get tweets
-      //call term freq
-      //call inverse term freq incl users tweets
-      //call cosine func
-      //add results to filter
       filterMatches(matches);
     }
   });
@@ -123,13 +112,31 @@ exports.findMatches = function(screenName, location, callback){
             match.common_friends = friends;
             matchCount--;
             if (matchCount === 0 ) {
-              packageResults(matches);
+              matchSemantics(matches, screenName);
             }
           }
         });
       });
     }
   }; 
+
+  //This function will calculate a tf/itf for each match and rank them according to a new weigth
+  var matchSemantics = function(matches, screenName){
+    console.log('inside match semantics');
+    var matchTFs=[];
+    //get the tf for user's tweets
+    var usersTF = twitter.getTweets(screenName);
+    //get the tf for each match's tweets
+    var matchTF = _.each(matches, function(match){
+      matchTFs.push(twitter.getTweets(match.screen_name));
+    });
+    //get the itf for matches and user
+    //Q.allSettled(promises).then(semantic.parseTweets(screenName, tweets));    
+      //call term freq
+      //call inverse term freq incl users tweets
+      //call cosine func
+      //add results to filter
+  };
 
   var packageResults = function(matches) {
 
