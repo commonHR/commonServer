@@ -77,4 +77,5 @@ var calculateITF = exports.calculateITF = function(){
   var corpus = {};
   //foreach match, get parsed tweets
   //foreach parsed tweet add it to corpus  
+  return corpus;
 }

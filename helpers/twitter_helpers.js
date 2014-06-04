@@ -64,12 +64,7 @@ var getTweets = exports.getTweets = function(screenName) {
     response.getBody();
     var tweets = JSON.parse(response.body);
     return semantic.parseTweets(screenName, tweets);
-  })
-  .then(function(reply){
-    return reply;
-  })
-  //console.log(allTweets);
-  //return allTweets;
+  });
 }
 
 
