@@ -2,7 +2,6 @@
 var neo4j = require('neo4j');
 // var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
 var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
-var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
 var _ = require('underscore');
 
 /*        CHAT FUNCTIONS        */
@@ -19,9 +18,6 @@ exports.retrieveSingleConversation = function(user, match, callback) {
 
   var conversationID = getConversationID(user, match);
 
-  var params = {
-    'conversationID': conversationID
-  };
 
   var query = [
     'MATCH (conversation:Conversation {id:{conversationID}})',
@@ -30,10 +26,15 @@ exports.retrieveSingleConversation = function(user, match, callback) {
     'RETURN collect(message) as messages'
   ].join('\n'); 
 
+  var params = {
+    'conversationID': conversationID
+  };
+
   db.query(query, params, function (error, results) {
     if ( error ) {
       console.log (error);
     } else {
+      console.log(results);
       var conversation = {};
       var messageData = results[0].messages;
 
@@ -42,7 +43,7 @@ exports.retrieveSingleConversation = function(user, match, callback) {
       });
 
       conversation[match] = messages;
-
+      
       callback(conversation);
     }
   }); 

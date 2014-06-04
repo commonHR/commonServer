@@ -30,10 +30,10 @@ app.use(function(req, res, next){
   next();
 });
 
-// chat.retrieveSingleConversation('duncantrussell', 'RICEaaron');
+chat.retrieveSingleConversation('duncantrussell', 'RICEaaron');
 // chat.retrieveConversations('RICEaaron');
 
-twitter.getTweets('joerogan');
+// twitter.getTweets('joerogan');
 
 // match.findMatches('RICEaaron', '{"latitude": "37.9841", "longitude": "-122.80699"}');
 // match.findMatches('RICEaaron', '{"latitude": "0", "longitude": "0"}');
