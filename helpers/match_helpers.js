@@ -5,6 +5,7 @@ var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb
 var geolib = require('geolib');
 var timeago = require('timeago');
 var _  = require('underscore');
+var twitter = require('./twitter_helpers');
 
 exports.findMatches = function(screenName, location, callback){
 
@@ -27,7 +28,17 @@ exports.findMatches = function(screenName, location, callback){
         result.match._data.data.no_common_friends = result['COUNT(match)'];
         matches.push(result.match._data.data);
       });
-
+      _.each(matches, function(match){
+        console.log('inside findMatches');
+        console.log('match', match.screen_name);
+        var twitTest = twitter.getTweets(match.screen_name);
+        console.log('?', twitTest);
+      })
+      //call get tweets
+      //call term freq
+      //call inverse term freq incl users tweets
+      //call cosine func
+      //add results to filter
       filterMatches(matches);
     }
   });
@@ -126,6 +137,6 @@ exports.findMatches = function(screenName, location, callback){
       results[match.screen_name] = match;
     });
 
-    callback(results);
+    //callback(results);
   }; 
 };

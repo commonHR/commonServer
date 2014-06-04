@@ -32,7 +32,7 @@ exports.getUserInfo = function(screenName, currentLocation, callback) {
     userInfo.latest_location = currentLocation;
     if ( callback ) callback(userInfo); //callback is response to client with user object
     user.addUser(userInfo, true);
-  });
+  })
 };
 
 var getFriends = exports.getFriends = function(screenName, cursor){
@@ -54,16 +54,22 @@ var getFriends = exports.getFriends = function(screenName, cursor){
 };
 
 var getTweets = exports.getTweets = function(screenName) {
-
-    requestify.request(getTweetsURL + screenName, {
+  var allTweets;      
+  console.log('inside getTweets twitter helper');
+  requestify.request(getTweetsURL + screenName, {
     method: 'GET',
     headers: headers
   })
   .then(function(response){
     response.getBody();
     var tweets = JSON.parse(response.body);
-    semantic.parseTweets(screenName, tweets);
-  });
+    return semantic.parseTweets(screenName, tweets);
+  })
+  .then(function(reply){
+    return reply;
+  })
+  //console.log(allTweets);
+  //return allTweets;
 }
 
 
