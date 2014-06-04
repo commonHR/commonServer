@@ -35,7 +35,10 @@ exports.parseTweets = function(screenName, tweets) {
     }
   });
 
+  console.log('inside semantic');
+  var tf = calculateTF(userDoc);
   console.log(userDoc);
+  console.log(tf);
 
 };
 
@@ -58,9 +61,16 @@ var addUserDoc = exports.addUserDoc = function(screenName, userDoc) {
 };
 
 
-  
+var calculateTF = exports.calculateTF = function(userDoc){
+  var size=0, tfs = {};
+  _.each(userDoc, function(value){
+    size+=value;
+  });
+  _.map(userDoc, function(value, key){
+    tfs[key] = value/size;
+  });
+  return tfs;
+}  
 
 
-
-
-
+var calculateITF = exports.calculateITF = function(){}
