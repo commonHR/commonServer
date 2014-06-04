@@ -1,7 +1,7 @@
 /*        MODULE DEPENDENCIES       */
 var neo4j = require('neo4j');
-// var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
-var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
+var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
+// var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
 var geolib = require('geolib');
 var timeago = require('timeago');
 var _  = require('underscore');
@@ -30,17 +30,6 @@ exports.findMatches = function(screenName, location, callback){
         matches.push(result.match._data.data);
       });
 
-      Q.all()
-        matches.forEach(function (match) {
-          var test = twitter.getTweets(match.screen_name);
-          console.log(test);
-      });
-
-      //call get tweets
-      //call term freq
-      //call inverse term freq incl users tweets
-      //call cosine func
-      //add results to filter
       filterMatches(matches);
     }
   });
@@ -130,6 +119,13 @@ exports.findMatches = function(screenName, location, callback){
       });
     }
   }; 
+
+  var semanticRanking = function(matches) {
+
+    
+
+
+  }
 
   var packageResults = function(matches) {
 

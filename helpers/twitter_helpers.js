@@ -53,9 +53,7 @@ var getFriends = exports.getFriends = function(screenName, cursor){
   });
 };
 
-var getTweets = exports.getTweets = function(screenName) {
-  var allTweets;      
-  console.log('inside getTweets twitter helper');
+var getTweets = exports.getTweets = function(screenName) {   
   requestify.request(getTweetsURL + screenName, {
     method: 'GET',
     headers: headers
@@ -63,7 +61,7 @@ var getTweets = exports.getTweets = function(screenName) {
   .then(function(response){
     response.getBody();
     var tweets = JSON.parse(response.body);
-    return semantic.parseTweets(screenName, tweets);
+    semantic.parseTweets(screenName, tweets);
   });
 }
 
