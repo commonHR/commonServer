@@ -122,10 +122,9 @@ exports.findMatches = function(screenName, location, callback){
 
   var semanticRanking = function(matches) {
 
-    
+    return matches;
 
-
-  }
+  };
 
   var packageResults = function(matches) {
 

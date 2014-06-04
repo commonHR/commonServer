@@ -33,7 +33,7 @@ app.use(function(req, res, next){
 //chat.retrieveSingleConversation('duncantrussell', 'RICEaaron');
 // chat.retrieveConversations('RICEaaron');
 
-twitter.getUserInfo('RICEaaron');
+// twitter.getUserInfo('RICEaaron');
 // user.resetFollowingRelationships('RICEaaron');/
 // twitter.getTweets('RICEaaron');
 //console.log('getting tweets');
@@ -49,7 +49,7 @@ twitter.getUserInfo('RICEaaron');
 // });
 
 // twitter.getUserInfo('RICEaaron', '{"latitude": "37.9841", "longitude": "-122.80699"}');	
-// twitter.getUserInfo('marc0au');
+twitter.getUserInfo('RICEaaron');
 
 
 /*         HANDLE REQUESTS           */

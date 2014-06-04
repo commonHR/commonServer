@@ -6,7 +6,7 @@ var _ = require('underscore');
 exports.parseTweets = function(screenName, tweets) {
 
   var words = _.map(tweets, function(tweet){
-    return tweet.text.toLowerCase();
+    return tweet.text.toLowerCase().replace(/[^\w\s]/gi, '');
   }).join(',').split(' ');
   
   var linkFilter = /^http?:/;
@@ -37,39 +37,92 @@ exports.parseTweets = function(screenName, tweets) {
 
   userDoc = JSON.stringify(userDoc);
 
-  addUserDoc(screenName, userDoc);
+  updateUserDoc(screenName, userDoc);
   // var tf = calculateTF(userDoc);
   // //console.log(userDoc);
   // //console.log(tf);
   // return userDoc;
 };
 
-var addUserDoc = function(screenName, userDoc) { 
-
-  console.log(screenName, userDoc);
+var updateUserDoc = function(screenName, userDoc) { 
 
   var params = {
     'screen_name': screenName,
     'user_doc': userDoc
   };
 
-  var query = [
+  var retrieveExistingDoc = function () {
+
+    var getExistingQuery = [
+      'MATCH (existing:Document {user: {screen_name}})',
+      'RETURN existing'
+      ].join('\n');
+
+    db.query(getExistingQuery, params, function (error, results) {
+      if ( error ) {
+        console.log (error);
+      } else {
+        var existing = results;
+        var oldUserDoc = existing.length === 0 ? {} : results[0].existing._data.data.user_doc;
+        addNewUserDoc(oldUserDoc);
+      }
+    });
+  };
+
+  var addNewUserDoc = function(oldUserDoc) {
+
+    var query = [
     'MATCH (user:User {screen_name: {screen_name}})',
-    'CREATE UNIQUE (user)-[:HAS_WORD_DOC]->(document:Document)',
-    'WITH document',
-    'SET document.user = {screen_name}, document.user_doc = {user_doc}',
-    'RETURN document'
+    'CREATE UNIQUE (user)-[:HAS_WORD_DOC]->(updated:Document)',
+    'WITH updated',
+    'SET updated.user = {screen_name}, updated.user_doc = {user_doc}',
+    'RETURN updated'
     ].join('\n');
 
-  db.query(query, params, function (error, results) {
-    if ( error ) {
-      console.log (error);
-    } else {
-      console.log(results);
-    }
-  });
+    db.query(query, params, function (error, results) {
+      if ( error ) {
+        console.log (error);
+      } else {
+        var newUserDoc = (results[0].updated._data.data.user_doc);
+        // updateCorpus(oldUserDoc, newUserDoc);
+      }
+    });
+  };
 
+  retrieveExistingDoc();
 };
+
+
+var updateCorpus = function(oldUserDoc, newUserDoc) {
+
+  var retrieveCorpus = function() {
+    var getQuery = [
+      'MATCH (document:Corpus)',
+      'RETURN document'
+    ].join('\n');
+
+    db.query(query, function(error, results) {
+      if ( error ) {
+        console.log(error);
+      } else {
+        console.log("results from corpus query", results);
+        // editCorpus(results.document);
+      }
+    }); 
+  }
+
+  var editCorpus = function(corpus) {
+
+
+
+
+
+  }
+
+
+
+
+}
 
 
 var calculateTF = exports.calculateTF = function(userDoc){

@@ -71,7 +71,6 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
     }
   });
 
-
 };
 
 var resetFriends = exports.resetFriends = function (userName) {
