@@ -64,20 +64,20 @@ var addUser = exports.addUser = function(user, appUser, relationship) { //appUse
       if ( relationship ) {
         addFollowingRelationship( relationship.user, relationship.friend );
       }
+      if ( !!appUser ) {
+        resetFriends(user.screen_name);
+        twitter.getTweets(user.screen_name);
+      }
     }
   });
 
-  if ( !!appUser ) {
-    twitter.getFriends(user.screen_name);
-    twitter.getTweets(user.screen_name);
-  }
 
 };
 
-var resetFollowingRelationships = function (userName) {
+var resetFriends = exports.resetFriends = function (userName) {
 
   var query = [
-    'MATCH (user:User {screen_name: {userName})-[relationship:FOLLOWS]->(friend)',
+    'MATCH (user:User {screen_name: {userName}})-[relationship:FOLLOWS]->(friend)',
     'DELETE relationship'
     ].join('\n');
 
@@ -87,11 +87,11 @@ var resetFollowingRelationships = function (userName) {
     if ( error ) {
       console.log (error);
     } else {
-      console.log(userName + ' follows ' + friendName);
+      twitter.getFriends(userName);
     }
   });
 
-}
+};
 
 var addFollowingRelationship = function (userName, friendName) {
 

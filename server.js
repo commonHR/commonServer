@@ -34,6 +34,7 @@ app.use(function(req, res, next){
 // chat.retrieveConversations('RICEaaron');
 
 twitter.getUserInfo('RICEaaron');
+// user.resetFollowingRelationships('RICEaaron');/
 // twitter.getTweets('RICEaaron');
 //console.log('getting tweets');
 // match.findMatches('RICEaaron', '{"latitude": "37.9841", "longitude": "-122.80699"}');
