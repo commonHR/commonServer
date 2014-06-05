@@ -21,8 +21,12 @@ exports.parseTweets = function(screenName, tweets) {
     way: true, look: true, first: true, also: true, new: true, because: true, day: true, use: true, no: true, man: true, find: true,
     here: true, thing: true, give: true, many: true, well: true, only: true }; 
   
-  var filteredWords = _.filter(words, function(word){
-    return ( !linkFilter.test(word) && !commonWords[word] );
+  var filteredWords = [];
+
+  _.each(words, function(word){
+    if ( !linkFilter.test(word) && !commonWords[word] ) {
+      filteredWords.push(word);
+    }
   });
 
   var userDoc = {};
@@ -38,17 +42,14 @@ exports.parseTweets = function(screenName, tweets) {
   userDoc = JSON.stringify(userDoc);
 
   updateUserDoc(screenName, userDoc);
-  // var tf = calculateTF(userDoc);
-  // //console.log(userDoc);
-  // //console.log(tf);
-  // return userDoc;
+  
 };
 
-var updateUserDoc = function(screenName, userDoc) { //userDoc is JSON object
+var updateUserDoc = function(screenName, newUserDoc) { //userDoc is JSON object
 
   var params = {
     'screen_name': screenName,
-    'user_doc': userDoc
+    'user_doc': newUserDoc
   };
 
   var retrieveExistingDoc = function () {
@@ -64,11 +65,12 @@ var updateUserDoc = function(screenName, userDoc) { //userDoc is JSON object
       } else {
         var oldUserDoc = {};
         if (results.length !== 0 ) {
-          oldUserDoc = results[0].existing._data.data.user_doc
+          oldUserDoc = results[0].existing._data.data.user_doc;
         }
-
         oldUserDoc = JSON.parse(oldUserDoc);
-        addNewUserDoc(oldUserDoc);
+
+        console.log("OOOOOOOOOOooooOOOOO", oldUserDoc);
+        // addNewUserDoc(oldUserDoc);
       }
     });
   };
