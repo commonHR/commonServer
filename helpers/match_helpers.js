@@ -153,6 +153,6 @@ exports.findMatches = function(screenName, location, callback){
     });
     
     console.log(results);
-    // callback(results);
+    callback(results);
   }; 
 };

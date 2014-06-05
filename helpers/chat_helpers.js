@@ -42,9 +42,9 @@ exports.retrieveSingleConversation = function(user, match, callback) {
         return message._data.data;
       });
 
-      conversation[match] = messages;
+      // conversation[match] = messages;
       
-      callback(conversation);
+      callback(messages);
     }
   }); 
 };

@@ -18,7 +18,7 @@ var app = express();
 // // parse application/vnd.api+json as json
 // app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-// app.use(express.bodyParser());
+app.use(express.bodyParser());
 
 var port = process.env.PORT || 4568;
 app.listen(port);
@@ -67,6 +67,7 @@ app.post('/login', request.userLogin);
 app.post('/search', request.findMatches);
 app.post('/send_message', request.sendMessage);
 app.post('/get_messages', request.getMessages);
+app.post('/get_conversation', request.getMessage);
 app.get('*', request.home)
 
 

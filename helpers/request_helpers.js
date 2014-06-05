@@ -22,8 +22,8 @@ exports.userLogin = function(request, response) {
 };
 
 exports.findMatches = function(request, response) {
-  var screenName = request.body.screenName;
-  var currentLocation = request.body.currentLocation;
+  var screenName = request.body.screen_name;
+  var currentLocation = request.body.current_location;
 
   match.findMatches(screenName, currentLocation, function(data){
     response.send(200, data);
@@ -45,6 +45,16 @@ exports.getMessages = function(request, response) {
   console.log(request.body);
   var screenName = request.body.screen_name;
   chat.retrieveConversations(screenName, function(data){
+    console.log(data);
+    response.send(200, data);
+  });
+};
+
+exports.getMessage = function(request, response) {
+  console.log(request.body);
+  var user = request.body.user;
+  var match = request.body.match;
+  chat.retrieveSingleConversation(user, match, function(data){
     console.log(data);
     response.send(200, data);
   });
