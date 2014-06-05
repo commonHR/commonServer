@@ -49,7 +49,7 @@ var updateUserDoc = function(screenName, newUserDoc) { //userDoc is JSON object
 
   var params = {
     'screen_name': screenName,
-    'user_doc': newUserDoc
+    'new_user_doc': newUserDoc
   };
 
   var retrieveExistingDoc = function () {
@@ -68,9 +68,7 @@ var updateUserDoc = function(screenName, newUserDoc) { //userDoc is JSON object
           oldUserDoc = results[0].existing._data.data.user_doc;
         }
         oldUserDoc = JSON.parse(oldUserDoc);
-
-        console.log("OOOOOOOOOOooooOOOOO", oldUserDoc);
-        // addNewUserDoc(oldUserDoc);
+        addNewUserDoc(oldUserDoc);
       }
     });
   };
@@ -81,7 +79,7 @@ var updateUserDoc = function(screenName, newUserDoc) { //userDoc is JSON object
     'MATCH (user:User {screen_name: {screen_name}})',
     'CREATE UNIQUE (user)-[:HAS_WORD_DOC]->(updated:Document)',
     'WITH updated',
-    'SET updated.user = {screen_name}, updated.user_doc = {user_doc}',
+    'SET updated.user = {screen_name}, updated.user_doc = {new_user_doc}',
     'RETURN updated'
     ].join('\n');
 
@@ -89,7 +87,8 @@ var updateUserDoc = function(screenName, newUserDoc) { //userDoc is JSON object
       if ( error ) {
         console.log (error);
       } else {
-        var newUserDoc = (results[0].updated._data.data.user_doc);
+        var newUserDoc = results[0].updated._data.data.user_doc;
+        newUserDoc = JSON.parse(newUserDoc);
         updateCorpus(oldUserDoc, newUserDoc);
       }
     });
@@ -102,7 +101,7 @@ var updateUserDoc = function(screenName, newUserDoc) { //userDoc is JSON object
 var updateCorpus = function(oldUserDoc, newUserDoc) {
 
   var retrieveCorpus = function() {
-    console.log("GETTING HERE");
+
     var getQuery = [
       'MATCH (document:Corpus)',
       'RETURN document'
@@ -112,15 +111,20 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
       if ( error ) {
         console.log(error);
       } else {
-        // console.log("ZZZZZ", results);
-        var existing = results;
-        console.log("LENGTH", existing.length);
-        if ( existing.length === 0 ) {
-          var oldCorpus = {};
-        } else {
-          var oldCorpus = results[0].document._data.data.user_doc;
+        var existing = {};
+        console.log("MMMmmMMMmmMMM", results[0].document._data.data);
+        if ( results.length !== 0 ) {
+          existing = results[0].document._data.data;
         }
-        console.log("MMMMMMMMMM", oldCorpus);
+
+        console.log("aljdhkjhdjkhdjk", existing);
+        // console.log("LENGTH", existing.length);
+        // if ( existing.length === 0 ) {
+        //   var oldCorpus = {};
+        // } else {
+        //   var oldCorpus = results[0].document._data.data.user_doc;
+        // }
+        // editCorpus(oldCorpus);
       }
     }); 
   };
