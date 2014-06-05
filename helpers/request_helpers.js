@@ -24,8 +24,10 @@ exports.userLogin = function(request, response) {
 exports.findMatches = function(request, response) {
   var screenName = request.body.screen_name;
   var currentLocation = request.body.current_location;
+  var maxDistance = request.body.max_distance;
+  var maxTime = request.body.max_time;
 
-  match.findMatches(screenName, currentLocation, function(data){
+  match.findMatches(screenName, currentLocation, maxDistance, maxTime, function(data){
     response.send(200, data);
   });
 };
