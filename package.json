@@ -6,11 +6,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "neo4j": "^1.1.0",
-    "underscore": "^1.6.0",
-    "requestify": "^0.1.16",
+    "body-parser": "^1.2.2",
     "express": "^3.8.1",
-    "body-parser": "^1.2.2"
+    "geolib": "^2.0.14",
+    "neo4j": "^1.1.0",
+    "requestify": "^0.1.16",
+    "timeago": "^0.1.0",
+    "underscore": "^1.6.0"
   },
   "devDependencies": {
     "mocha": "^1.18.2",
