@@ -114,18 +114,26 @@ exports.sendMessage = function(message){
 
   var conversationID = getConversationID(message.sender, message.recipient);
 
+  console.log(typeof message.sender);
+
+  var readStatus = {};
+  readStatus[message.sender] = 'true';
+  readStatus[message.recipient] = 'false';
+  readStatus = JSON.stringify(readStatus);
+
   var params = {
     'conversationID': conversationID,
     'sender':message.sender, 
     'recipient':message.recipient,
     'text':message.text,
-    'time': new Date()
+    'time': new Date(),
+    'status': readStatus
   };
 
   var conversationQuery = [ 
     'MERGE (conversation:Conversation {id: {conversationID}})',
-    'ON MATCH SET conversation.latest_message = {time}',
-    'ON CREATE SET conversation.latest_message = {time}, conversation.new_conversation = true',
+    'ON MATCH SET conversation.latest_message = {time}, conversation.status = {status}',
+    'ON CREATE SET conversation.latest_message = {time}, conversation.new_conversation = true, conversation.status = {status}',
     'WITH conversation', 
     'MATCH (sender:User {screen_name: {sender} }), (recipient:User {screen_name: {recipient} })',
     'CREATE UNIQUE (sender)-[:HAS_CONVERSATION]->(conversation)<-[:HAS_CONVERSATION]-(recipient)',
