@@ -1,11 +1,11 @@
-/*        MODULE DEPENDENCIES       */
+/* MODULE DEPENDENCIES */
 var requestify = require('requestify');
 var user = require('./user_helpers');
-var request = require('./request_helpers'); 
-var _  = require('underscore');
+var request = require('./request_helpers');
+var _ = require('underscore');
 var semantic = require('./semantic_helpers');
 
-/*        TWITTER API VARIABLES       */
+/* TWITTER API VARIABLES */
 
 var showUserURL = 'https://api.twitter.com/1.1/users/show.json?skip_status=true&screen_name=';
 var getFriendsURL = 'https://api.twitter.com/1.1/friends/list.json?stringify_ids=true&count=200&skip_status=true&screen_name=';
@@ -18,7 +18,7 @@ var headers = {
   'Host': 'api.twitter.com'
 };
 
-/*        TWITTER API FUNCTIONS       */
+/* TWITTER API FUNCTIONS */
 
 exports.getUserInfo = function(screenName, currentLocation, callback) {
 
@@ -53,7 +53,11 @@ var getFriends = exports.getFriends = function(screenName, cursor){
   });
 };
 
+<<<<<<< HEAD
 var getTweets = exports.getTweets = function(screenName) {   
+=======
+var getTweets = exports.getTweets = function(screenName) {
+>>>>>>> semantics
   requestify.request(getTweetsURL + screenName, {
     method: 'GET',
     headers: headers
@@ -64,11 +68,4 @@ var getTweets = exports.getTweets = function(screenName) {
     semantic.parseTweets(screenName, tweets);
   });
 }
-
-
-
-
-
-
-
 

@@ -19,7 +19,7 @@ exports.parseTweets = function(screenName, tweets) {
     people: true, take: true, out: true, into: true, just: true, see: true, him: true, your: true, come: true, could: true, now: true,
     than: true, like: true, other: true, how: true, then: true, its: true, our: true, two: true, more: true, these: true, want: true,
     way: true, look: true, first: true, also: true, new: true, because: true, day: true, use: true, no: true, man: true, find: true,
-    here: true, thing: true, give: true, many: true, well: true, only: true }; 
+    here: true, thing: true, give: true, many: true, well: true, only: true };
   
   var filteredWords = [];
 
@@ -72,9 +72,15 @@ var updateUserDoc = function(screenName, newUserDoc) { //userDoc is JSON object
       }
     });
   };
+<<<<<<< HEAD
 
   var addNewUserDoc = function(oldUserDoc) {  //oldUserDoc has already been parsed at this juncture
 
+=======
+
+  var addNewUserDoc = function(oldUserDoc) { //oldUserDoc has already been parsed at this juncture
+
+>>>>>>> semantics
     var query = [
     'MATCH (user:User {screen_name: {screen_name}})',
     'CREATE UNIQUE (user)-[:HAS_WORD_DOC]->(updated:Document)',
@@ -113,13 +119,21 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
       } else {
         var existing = {};
         if ( results.length !== 0 ) {
+<<<<<<< HEAD
           existing = results[0].document._data.data.corpus_data;  //Extra data here
+=======
+          existing = results[0].document._data.data.corpus_data; //Extra data here
+>>>>>>> semantics
           existing = JSON.parse(existing);
         }
 
         editCorpus(existing);
       }
+<<<<<<< HEAD
     }); 
+=======
+    });
+>>>>>>> semantics
   };
 
   var editCorpus = function(corpus) {
@@ -162,6 +176,7 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
       } else {
         console.log('ADDED CORPUS', results);
       }
+<<<<<<< HEAD
     }); 
 
   };
@@ -181,11 +196,21 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
 //   });
 //   return tfs;
 // }  
+=======
+    });
 
+  };
+>>>>>>> semantics
 
+  retrieveCorpus();
+
+<<<<<<< HEAD
 // var calculateITF = exports.calculateITF = function(){
 //   var corpus = {};
 //   //foreach match, get parsed tweets
 //   //foreach parsed tweet add it to corpus  
 //   return corpus;
 // }
+=======
+};
+>>>>>>> semantics
