@@ -66,8 +66,8 @@ var updateUserDoc = function(screenName, newUserDoc) { //userDoc is JSON object
         var oldUserDoc = {};
         if (results.length !== 0 ) {
           oldUserDoc = results[0].existing._data.data.user_doc;
+          oldUserDoc = JSON.parse(oldUserDoc);
         }
-        oldUserDoc = JSON.parse(oldUserDoc);
         addNewUserDoc(oldUserDoc);
       }
     });
@@ -112,19 +112,12 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
         console.log(error);
       } else {
         var existing = {};
-        console.log("MMMmmMMMmmMMM", results[0].document._data.data);
         if ( results.length !== 0 ) {
-          existing = results[0].document._data.data;
+          existing = results[0].document._data.data.corpus_data;  //Extra data here
+          existing = JSON.parse(existing);
         }
 
-        console.log("aljdhkjhdjkhdjk", existing);
-        // console.log("LENGTH", existing.length);
-        // if ( existing.length === 0 ) {
-        //   var oldCorpus = {};
-        // } else {
-        //   var oldCorpus = results[0].document._data.data.user_doc;
-        // }
-        // editCorpus(oldCorpus);
+        editCorpus(existing);
       }
     }); 
   };
@@ -132,18 +125,19 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
   var editCorpus = function(corpus) {
 
     _.each(oldUserDoc, function(value, key) {
-      if ( corpus[key] ) {
-        corpus[key] -= oldUserDoc[key];
+      corpus[key] -= oldUserDoc[key];
+      if ( corpus[key] <= 0 || corpus[key] === null ) {
+        delete corpus[key];
       }
     });
 
-    console.log('OLD CORPUS', corpus);
-
     _.each(newUserDoc, function(value, key) {
+      if ( corpus[key] ){
         corpus[key] += newUserDoc[key];
+      } else {
+        corpus[key] = newUserDoc[key];
+      }
     });
-
-    console.log('NEW CORPUS', corpus);
 
     addUpdatedCorpus(corpus);
 
@@ -153,12 +147,12 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
 
     corpus = JSON.stringify(corpus);
 
-    var params = { 'data': corpus };
+    var params = { 'corpus_data': corpus };
 
     var corpusQuery = [
       'MERGE (document:Corpus)',
-      'ON CREATE SET document.data = {data}',
-      'ON MATCH SET document.data = {data}',
+      'ON CREATE SET document.corpus_data = {corpus_data}',
+      'ON MATCH SET document.corpus_data = {corpus_data}',
       'RETURN document'
     ].join('\n');
 
