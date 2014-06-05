@@ -14,6 +14,28 @@ var getConversationID = function( user_one, user_two ) {
 
 };
 
+var getTimestamp = function(date){
+  var chatDate = new Date(date);
+  console.log(chatDate);
+  console.log(typeof chatDate);
+  if(chatDate.getMinutes() < 10){
+    var minute = '0' + chatDate.getMinutes();
+  }else{
+    var minute = chatDate.getMinutes();
+  }
+
+  var newDate = new Date();
+  if(newDate.getDate() - chatDate.getDate() === 0){
+    //less than one day ago
+    return 'Today ' + chatDate.getHours() + ':' + minute;
+  }else if(newDate.getFullYear() - chatDate.getFullYear()){
+    //less than one year ago
+    return (chatDate.getMonth() + 1) + '-' + chatDate.getDate() + ' ' + chatDate.getHours() + ':' + minute;
+  }else{
+    return chatDate.getFullYear() + '-' + (chatDate.getMonth() + 1) + '-' + chatDate.getDate() + ' ' + chatDate.getHours() + ':' + minute;
+  }
+};
+
 exports.retrieveSingleConversation = function(user, match, callback) {
 
   var conversationID = getConversationID(user, match);
@@ -39,7 +61,8 @@ exports.retrieveSingleConversation = function(user, match, callback) {
       var messageData = results[0].messages;
 
       var messages = _.map(messageData, function(message){
-        return message._data.data;
+        // return message._data.data;
+        return _.extend(message._data.data, {timestamp: getTimestamp(message._data.data.time)});
       });
 
       // conversation[match] = messages;
@@ -75,7 +98,8 @@ exports.retrieveConversations = function(screenName, callback) {
         var match = result.match._data.data;
         var screen_name = result.match._data.data.screen_name;
         var messages = _.map(result.messages, function(message){
-          return message._data.data;
+          // return message._data.data;
+          return _.extend(message._data.data, {timestamp: getTimestamp(message._data.data.time)});
         });
         conversations[screen_name] = {match: match, messages: messages};
       });
