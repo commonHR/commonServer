@@ -1,7 +1,7 @@
 /*        MODULE DEPENDENCIES       */
 var neo4j = require('neo4j');
-// var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
-var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
+var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
+//var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
 var geolib = require('geolib');
 var timeago = require('timeago');
 var _  = require('underscore');
@@ -123,19 +123,21 @@ exports.findMatches = function(screenName, location, callback){
   //This function will calculate a tf/itf for each match and rank them according to a new weigth
   var matchSemantics = function(matches, screenName){
     console.log('inside match semantics');
-    var matchTFs=[];
     //get the tf for user's tweets
-    var usersTF = twitter.getTweets(screenName);
     //get the tf for each match's tweets
-    var matchTF = _.each(matches, function(match){
-      matchTFs.push(twitter.getTweets(match.screen_name));
-    });
     //get the itf for matches and user
-    //Q.allSettled(promises).then(semantic.parseTweets(screenName, tweets));    
-      //call term freq
-      //call inverse term freq incl users tweets
-      //call cosine func
-      //add results to filter
+    //call term freq
+    //call inverse term freq incl users tweets
+    //call cosine func
+    //add results to filter
+    //var userTF = twitter.getTweets(screenName);
+
+    // var matchTF = _.each(matches, function(match){
+    //   twitter.getTweets(match.screen_name);
+    // });
+
+
+
   };
 
   var packageResults = function(matches) {

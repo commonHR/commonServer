@@ -1,6 +1,6 @@
 var neo4j = require('neo4j');
-// var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
-var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
+var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
+//var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
 var _ = require('underscore');
 
 exports.parseTweets = function(screenName, tweets) {
@@ -36,25 +36,35 @@ exports.parseTweets = function(screenName, tweets) {
   });
 
   console.log('inside parseTweets semantic helpers');
-  console.log('userdoc', userDoc);
-  var tf = calculateTF(userDoc);
-  
-  return tf;
+  //console.log('userdoc', userDoc);
+
+  userDoc = JSON.stringify(userDoc);
+  addUserDoc(screenName, userDoc);
+  // var tf = calculateTF(userDoc);
+  // return tf;
 };
 
 var addUserDoc = exports.addUserDoc = function(screenName, userDoc) { 
 
   var params = {
+    'screen_name':screenName,
     'user_words_doc': userDoc
   };
 
-  var query = [];
+
+  var query = ['MATCH (user:User {screen_name:{screen_name}})',
+                'CREATE UNIQUE (user)-[:TWEETSABOUT]->(d:Document)',
+                'WITH d',
+                'SET d.screen_name={screen_name}, d.user_words_doc={user_words_doc}',
+                'RETURN d'
+              ].join('\n');
 
   db.query(query, params, function (error, results) {
     if ( error ) {
       console.log (error);
     } else {
-      // do things here
+      console.log("==========inside add docs=================");
+      console.log(results[0].d._data.data.user_words_doc);
     }
   });
 
@@ -87,6 +97,6 @@ var calculateIDF = exports.calculateCorpus = function(userDocs){
     });
   });
   var totalNumOfDocs = userDocs.length;
-  var docsTermAppears = 0;
+  var docsTermAppears = 0;  
   return corpus;
 }
