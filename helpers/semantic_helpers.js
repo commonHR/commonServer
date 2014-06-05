@@ -44,7 +44,7 @@ exports.parseTweets = function(screenName, tweets) {
   // return userDoc;
 };
 
-var updateUserDoc = function(screenName, userDoc) { 
+var updateUserDoc = function(screenName, userDoc) { //userDoc is JSON object
 
   var params = {
     'screen_name': screenName,
@@ -62,14 +62,18 @@ var updateUserDoc = function(screenName, userDoc) {
       if ( error ) {
         console.log (error);
       } else {
-        var existing = results;
-        var oldUserDoc = existing.length === 0 ? {} : results[0].existing._data.data.user_doc;
+        var oldUserDoc = {};
+        if (results.length !== 0 ) {
+          oldUserDoc = results[0].existing._data.data.user_doc
+        }
+
+        oldUserDoc = JSON.parse(oldUserDoc);
         addNewUserDoc(oldUserDoc);
       }
     });
   };
 
-  var addNewUserDoc = function(oldUserDoc) {
+  var addNewUserDoc = function(oldUserDoc) {  //oldUserDoc has already been parsed at this juncture
 
     var query = [
     'MATCH (user:User {screen_name: {screen_name}})',
@@ -84,7 +88,7 @@ var updateUserDoc = function(screenName, userDoc) {
         console.log (error);
       } else {
         var newUserDoc = (results[0].updated._data.data.user_doc);
-        // updateCorpus(oldUserDoc, newUserDoc);
+        updateCorpus(oldUserDoc, newUserDoc);
       }
     });
   };
@@ -96,50 +100,92 @@ var updateUserDoc = function(screenName, userDoc) {
 var updateCorpus = function(oldUserDoc, newUserDoc) {
 
   var retrieveCorpus = function() {
+    console.log("GETTING HERE");
     var getQuery = [
       'MATCH (document:Corpus)',
       'RETURN document'
     ].join('\n');
 
-    db.query(query, function(error, results) {
+    db.query(getQuery, {}, function(error, results) {
       if ( error ) {
         console.log(error);
       } else {
-        console.log("results from corpus query", results);
-        // editCorpus(results.document);
+        // console.log("ZZZZZ", results);
+        var existing = results;
+        console.log("LENGTH", existing.length);
+        if ( existing.length === 0 ) {
+          var oldCorpus = {};
+        } else {
+          var oldCorpus = results[0].document._data.data.user_doc;
+        }
+        console.log("MMMMMMMMMM", oldCorpus);
       }
     }); 
-  }
+  };
 
   var editCorpus = function(corpus) {
 
+    _.each(oldUserDoc, function(value, key) {
+      if ( corpus[key] ) {
+        corpus[key] -= oldUserDoc[key];
+      }
+    });
+
+    console.log('OLD CORPUS', corpus);
+
+    _.each(newUserDoc, function(value, key) {
+        corpus[key] += newUserDoc[key];
+    });
+
+    console.log('NEW CORPUS', corpus);
+
+    addUpdatedCorpus(corpus);
+
+  };
+
+  var addUpdatedCorpus = function(corpus) {
+
+    corpus = JSON.stringify(corpus);
+
+    var params = { 'data': corpus };
+
+    var corpusQuery = [
+      'MERGE (document:Corpus)',
+      'ON CREATE SET document.data = {data}',
+      'ON MATCH SET document.data = {data}',
+      'RETURN document'
+    ].join('\n');
+
+    db.query(corpusQuery, params, function(error, results) {
+      if ( error ) {
+        console.log(error);
+      } else {
+        console.log('ADDED CORPUS', results);
+      }
+    }); 
+
+  };
+
+  retrieveCorpus();
+
+};
 
 
+// var calculateTF = exports.calculateTF = function(userDoc){
+//   var size=0, tfs = {};
+//   _.each(userDoc, function(value){
+//     size+=value;
+//   });
+//   _.map(userDoc, function(value, key){
+//     tfs[key] = value/size;
+//   });
+//   return tfs;
+// }  
 
 
-  }
-
-
-
-
-}
-
-
-var calculateTF = exports.calculateTF = function(userDoc){
-  var size=0, tfs = {};
-  _.each(userDoc, function(value){
-    size+=value;
-  });
-  _.map(userDoc, function(value, key){
-    tfs[key] = value/size;
-  });
-  return tfs;
-}  
-
-
-var calculateITF = exports.calculateITF = function(){
-  var corpus = {};
-  //foreach match, get parsed tweets
-  //foreach parsed tweet add it to corpus  
-  return corpus;
-}
+// var calculateITF = exports.calculateITF = function(){
+//   var corpus = {};
+//   //foreach match, get parsed tweets
+//   //foreach parsed tweet add it to corpus  
+//   return corpus;
+// }
