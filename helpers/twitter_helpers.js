@@ -53,11 +53,8 @@ var getFriends = exports.getFriends = function(screenName, cursor){
   });
 };
 
-<<<<<<< HEAD
-var getTweets = exports.getTweets = function(screenName) {   
-=======
 var getTweets = exports.getTweets = function(screenName) {
->>>>>>> semantics
+
   requestify.request(getTweetsURL + screenName, {
     method: 'GET',
     headers: headers

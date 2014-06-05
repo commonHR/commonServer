@@ -1,6 +1,6 @@
 var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
-// var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
+// var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
+var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
 var _ = require('underscore');
 
 exports.parseTweets = function(screenName, tweets) {
@@ -72,15 +72,12 @@ var updateUserDoc = function(screenName, newUserDoc) { //userDoc is JSON object
       }
     });
   };
-<<<<<<< HEAD
 
   var addNewUserDoc = function(oldUserDoc) {  //oldUserDoc has already been parsed at this juncture
 
-=======
 
   var addNewUserDoc = function(oldUserDoc) { //oldUserDoc has already been parsed at this juncture
 
->>>>>>> semantics
     var query = [
     'MATCH (user:User {screen_name: {screen_name}})',
     'CREATE UNIQUE (user)-[:HAS_WORD_DOC]->(updated:Document)',
@@ -119,21 +116,14 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
       } else {
         var existing = {};
         if ( results.length !== 0 ) {
-<<<<<<< HEAD
-          existing = results[0].document._data.data.corpus_data;  //Extra data here
-=======
           existing = results[0].document._data.data.corpus_data; //Extra data here
->>>>>>> semantics
           existing = JSON.parse(existing);
         }
 
         editCorpus(existing);
       }
-<<<<<<< HEAD
-    }); 
-=======
     });
->>>>>>> semantics
+
   };
 
   var editCorpus = function(corpus) {
@@ -176,7 +166,6 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
       } else {
         console.log('ADDED CORPUS', results);
       }
-<<<<<<< HEAD
     }); 
 
   };
@@ -184,7 +173,6 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
   retrieveCorpus();
 
 };
-
 
 // var calculateTF = exports.calculateTF = function(userDoc){
 //   var size=0, tfs = {};
@@ -196,21 +184,13 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
 //   });
 //   return tfs;
 // }  
-=======
-    });
 
-  };
->>>>>>> semantics
-
-  retrieveCorpus();
-
-<<<<<<< HEAD
 // var calculateITF = exports.calculateITF = function(){
 //   var corpus = {};
 //   //foreach match, get parsed tweets
 //   //foreach parsed tweet add it to corpus  
 //   return corpus;
 // }
-=======
+
 };
->>>>>>> semantics
+

@@ -1,16 +1,11 @@
 /*        MODULE DEPENDENCIES       */
 var neo4j = require('neo4j');
-var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
-<<<<<<< HEAD
-// var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
-=======
-//var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
->>>>>>> semantics
+// var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
+var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
 var geolib = require('geolib');
 var timeago = require('timeago');
 var _  = require('underscore');
 var twitter = require('./twitter_helpers');
-var Q = require('q');
 var semantic = require('./semantic_helpers');
 
 exports.findMatches = function(screenName, location, callback){
@@ -34,10 +29,7 @@ exports.findMatches = function(screenName, location, callback){
         result.match._data.data.no_common_friends = result['COUNT(match)'];
         matches.push(result.match._data.data);
       });
-<<<<<<< HEAD
 
-=======
->>>>>>> semantics
       filterMatches(matches);
     }
   });
@@ -120,7 +112,7 @@ exports.findMatches = function(screenName, location, callback){
             match.common_friends = friends;
             matchCount--;
             if (matchCount === 0 ) {
-              matchSemantics(matches, screenName);
+              packageResults(matches)
             }
           }
         });
@@ -128,11 +120,12 @@ exports.findMatches = function(screenName, location, callback){
     }
   }; 
 
-<<<<<<< HEAD
+
   var semanticRanking = function(matches) {
 
-    return matches;
-=======
+  };
+
+
   //This function will calculate a tf/itf for each match and rank them according to a new weigth
   var matchSemantics = function(matches, screenName){
     console.log('inside match semantics');
@@ -149,9 +142,6 @@ exports.findMatches = function(screenName, location, callback){
     //   twitter.getTweets(match.screen_name);
     // });
 
-
->>>>>>> semantics
-
   };
 
   var packageResults = function(matches) {
@@ -161,7 +151,8 @@ exports.findMatches = function(screenName, location, callback){
     _.each(matches, function(match){
       results[match.screen_name] = match;
     });
-
-    //callback(results);
+    
+    console.log(results);
+    // callback(results);
   }; 
 };
