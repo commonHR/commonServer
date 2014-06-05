@@ -6,7 +6,7 @@ var _ = require('underscore');
 exports.parseTweets = function(screenName, tweets) {
 
   var words = _.map(tweets, function(tweet){
-    return tweet.text.toLowerCase();
+    return tweet.text.toLowerCase().replace(/[^\w\s]/gi,'');
   }).join(',').split(' ');
   
   var linkFilter = /^http?:/;
@@ -21,8 +21,11 @@ exports.parseTweets = function(screenName, tweets) {
     way: true, look: true, first: true, also: true, new: true, because: true, day: true, use: true, no: true, man: true, find: true,
     here: true, thing: true, give: true, many: true, well: true, only: true }; 
   
-  var filteredWords = _.filter(words, function(word){
-    return ( !linkFilter.test(word) && !commonWords[word] );
+  var filteredWords = [];
+  _.each(words, function(word){
+    if(!linkFilter.test(word) && !commonWords[word]) {
+      filteredWords.push(word);
+    }
   });
 
   var userDoc = {};
@@ -39,35 +42,129 @@ exports.parseTweets = function(screenName, tweets) {
   //console.log('userdoc', userDoc);
 
   userDoc = JSON.stringify(userDoc);
-  addUserDoc(screenName, userDoc);
+  updateUserDoc(screenName, userDoc);
   // var tf = calculateTF(userDoc);
   // return tf;
 };
 
-var addUserDoc = exports.addUserDoc = function(screenName, userDoc) { 
-
+var updateUserDoc = exports.updateUserDoc = function(screenName, newUserDoc) { 
   var params = {
     'screen_name':screenName,
-    'user_words_doc': userDoc
+    'user_words_doc': newUserDoc
+  };
+
+  var retrieveUserDoc = function(){
+    console.log('inside retrieveUserDoc');
+
+
+    var query = ['MATCH (d:Document {user:{screen_name}})',
+                  'RETURN d'
+                ].join('\n');
+
+    db.query(query, params, function (error, results) {
+      if ( error ) {
+        console.log (error);
+      } else {
+        console.log('inside retrieveUserDoc', results);
+          if(results.length!==0){
+            var doc = results[0].d._data.data.user_words_doc;
+            doc = JSON.parse(doc);
+            addUserDoc(doc);
+          }
+          else {
+            addUserDoc({});
+          }
+      }
+    });
   };
 
 
-  var query = ['MATCH (user:User {screen_name:{screen_name}})',
-                'CREATE UNIQUE (user)-[:TWEETSABOUT]->(d:Document)',
-                'WITH d',
-                'SET d.screen_name={screen_name}, d.user_words_doc={user_words_doc}',
-                'RETURN d'
+  var addUserDoc = function(oldUserDoc){
+
+    var query = ['MATCH (user:User {user:{screen_name}})',
+                  'CREATE UNIQUE (user)-[:TWEETSABOUT]->(doc:Document)',
+                  'WITH doc',
+                  'SET doc.user={screen_name}, doc.user_words_doc={user_words_doc}',
+                  'RETURN doc'
+                ].join('\n');
+
+    db.query(query, params, function (error, results) {
+      if ( error ) {
+        console.log (error);
+      } else {
+        console.log(results);
+//        console.log(results[0].doc._data.data.user_words_doc);
+      }
+    });
+  }
+
+  retrieveUserDoc();
+};
+
+
+var updateCorpus = function(oldUserDoc, newUserDoc){
+
+  var retrieveCorpus = function(){
+
+    var query = ['MATCH (corpus:Corpus)',
+                  'RETURN corpus'
+                ].join('\n');
+
+    db.query(query, params, function (error, results) {
+      if ( error ) {
+        console.log (error);
+      } else {
+        if (results.length!==0) {
+          var cor = results.corpus._data.data.corpus_data;
+          cor = JSON.parse(cor);
+          editCorpus(cor);
+        } else {
+          editCorpus({});
+        }
+      }
+    });
+  };
+
+  var editCorpus = function (corpus) {
+
+    _.each(oldUserDoc, function(value, key){
+      corpus[key] -= 1;
+    });
+
+    _.each(newUserDoc, function(value, key){
+      if(corpus[key]){
+        corpus[key] += 1;
+      } else {
+        corpus[key] = 1;
+      }
+    });
+
+    corpus = JSON.stringify(corpus);
+    addCorpus(corpus);
+  }
+
+  var addCorpus = function (corpus) {
+
+    var params = {
+      'corpus':corpus
+    };
+
+    var query = ['MERGE (corpus:Corpus)',
+                'ON CREATE SET corpus.corpus_data = {corpus}',
+                'ON MATCH SET corpus.corpus_data = {corpus}',
+                'RETURN corpus'
               ].join('\n');
 
-  db.query(query, params, function (error, results) {
-    if ( error ) {
-      console.log (error);
-    } else {
-      console.log("==========inside add docs=================");
-      console.log(results[0].d._data.data.user_words_doc);
-    }
-  });
+    db.query(query, params, function (error, results) {
+      if ( error ) {
+        console.log (error);
+      } else {
+        console.log(results);
+      }
+    });  
+  }
 
+  retrieveCorpus();
 };
 
 

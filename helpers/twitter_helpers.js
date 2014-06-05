@@ -54,7 +54,7 @@ var getFriends = exports.getFriends = function(screenName, cursor){
 };
 
 var getTweets = exports.getTweets = function(screenName) {
-  //console.log('inside getTweets twitter helper');
+  console.log('inside getTweets twitter helper');
   requestify.request(getTweetsURL + screenName, {
     method: 'GET',
     headers: headers
