@@ -8,7 +8,7 @@ var _  = require('underscore');
 var twitter = require('./twitter_helpers');
 var semantic = require('./semantic_helpers');
 
-exports.findMatches = function(screenName, location, callback){
+exports.findMatches = function(screenName, location, maxDistance, maxTime, callback){
 
   var query = [ 
     'MATCH (user:User)-[:FOLLOWS]->(friend:User)<-[:FOLLOWS]-(match:User)',
@@ -42,7 +42,7 @@ exports.findMatches = function(screenName, location, callback){
 
       // Filters matches by latest activity
       _.each(matches, function(match){
-        if (new Date().getTime() -  match.latest_activity <= 10800000000) { // 3000 hours
+        if (new Date().getTime() -  match.latest_activity <= maxTime * 1000 * 3600) { // 3000 hours
           timeFilteredMatches.push(match);
         }
       });
@@ -61,7 +61,7 @@ exports.findMatches = function(screenName, location, callback){
 
       var filteredMatches = [];
 
-      var searchRadius = 50000; // This is an option that should be set on the front end
+      var searchRadius = maxDistance; // This is an option that should be set on the front end
 
       _.each(matches, function(match) {
         var userLocation = JSON.parse(location);

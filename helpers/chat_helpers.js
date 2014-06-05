@@ -101,7 +101,7 @@ exports.retrieveConversations = function(screenName, callback) {
           // return message._data.data;
           return _.extend(message._data.data, {timestamp: getTimestamp(message._data.data.time)});
         });
-        conversations[screen_name] = {match: match, messages: messages};
+        conversations[screen_name] = {match: match, messages: messages, latest_message_time: (new Date(messages[0].time)).getTime()};
       });
 
       callback(conversations);
