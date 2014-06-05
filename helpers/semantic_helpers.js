@@ -75,9 +75,6 @@ var updateUserDoc = function(screenName, newUserDoc) { //userDoc is JSON object
 
   var addNewUserDoc = function(oldUserDoc) {  //oldUserDoc has already been parsed at this juncture
 
-
-  var addNewUserDoc = function(oldUserDoc) { //oldUserDoc has already been parsed at this juncture
-
     var query = [
     'MATCH (user:User {screen_name: {screen_name}})',
     'CREATE UNIQUE (user)-[:HAS_WORD_DOC]->(updated:Document)',
@@ -174,33 +171,31 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
 
 };
 
-var calculateTF = exports.calculateTF = function(userDoc){
-  var size=0, tfs = {};
-  _.each(userDoc, function(value){
-    size+=value;
-  });
-  _.map(userDoc, function(value, key){
-    tfs[key] = value/size;
-   });
-  return tfs;
-}  
+// var calculateTF = exports.calculateTF = function(userDoc){
+//   var size=0, tfs = {};
+//   _.each(userDoc, function(value){
+//     size+=value;
+//   });
+//   _.map(userDoc, function(value, key){
+//     tfs[key] = value/size;
+//    });
+//   return tfs;
+// }  
 
-var calculateIDF = exports.calculateCorpus = function(userDocs){
-  var corpus = {};
-  //foreach parsed tweet add it to corpus  
-  _.each(userDocs, function(userdoc){
-    _.each(userdoc, function(value, key, collection){
-      if (corpus[value]){
-        corpus[value] += key;
-      } 
-      else {
-        corpus[value] = key;
-      }
-    });
-  });
-  var totalNumOfDocs = userDocs.length;
-  var docsTermAppears = 0;  
-  return corpus;
-}
-
-};
+// var calculateIDF = exports.calculateCorpus = function(userDocs){
+//   var corpus = {};
+//   //foreach parsed tweet add it to corpus  
+//   _.each(userDocs, function(userdoc){
+//     _.each(userdoc, function(value, key, collection){
+//       if (corpus[value]){
+//         corpus[value] += key;
+//       } 
+//       else {
+//         corpus[value] = key;
+//       }
+//     });
+//   });
+//   var totalNumOfDocs = userDocs.length;
+//   var docsTermAppears = 0;  
+//   return corpus;
+// }
