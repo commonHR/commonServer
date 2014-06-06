@@ -68,17 +68,14 @@ var retrieveMatchDocs = function (userDoc, corpus, matches) {
   });
 };
 
-
 var calculateStats = function(userDoc, matchDocs, corpus) {
   console.log('====calculate stats=====');
   var tfu = calculateTF(userDoc);
-  console.log("matchdocs", matchDocs);
-  var tfm = _.each(matchDocs, function(match){
-    console.log(match);
-    calculateTF(match);
+  var tfm =[];
+  _.each(matchDocs, function(match){
+    tfm.push(calculateTF(match));
   });
-  console.log("term freq match", tfm);
-  //console.log("CCCCCC", corpus);  
+  //var idf = calculateIDF(corpus, size);
 };
 
 
@@ -91,19 +88,17 @@ var calculateTF = exports.calculateTF = function(userDoc){
      tf[key] = value/size;
     });
   return tf;
+};
 
 
-}  
-
-var calculateIDF = exports.calculateIDF = function(term, corpus, userDocs){
+var calculateIDF = exports.calculateIDF = function(corpus, totalNumOfDocs){
   var idf;
-  var totalNumOfDocs = userDocs.length;
   var termOccurances;
   _.each(corpus, function(value){
     if (value === term){
       termOccurances += value;
     } 
   });
-  idf = totalNumOfDocs/termOccurances;
+  idf = Math.log(totalNumOfDocs/termOccurances);
   return corpus;
-}
+};
