@@ -16,8 +16,6 @@ var getConversationID = function( user_one, user_two ) {
 
 var getTimestamp = function(date){
   var chatDate = new Date(date);
-  console.log(chatDate);
-  console.log(typeof chatDate);
   if(chatDate.getMinutes() < 10){
     var minute = '0' + chatDate.getMinutes();
   }else{
@@ -40,11 +38,17 @@ exports.retrieveSingleConversation = function(user, match, callback) {
 
   var conversationID = getConversationID(user, match);
 
+  var readStatus = {};
+  readStatus[user] = true;
+  readStatus[match] = false;
+  // readStatus =readStatus);
+
 
   var query = [
     'MATCH (conversation:Conversation {id:{conversationID}})',
     'WITH conversation',
     'MATCH path=(conversation)-[*]->(message:Message)',
+    'SET conversation.' + user + '_read = true',
     'RETURN collect(message) as messages'
   ].join('\n'); 
 
@@ -85,7 +89,7 @@ exports.retrieveConversations = function(screenName, callback) {
     'MATCH (user)-[:HAS_CONVERSATION]->(conversation:Conversation)<-[:HAS_CONVERSATION]-(match:User)',
     'WITH conversation, match',
     'MATCH path=(conversation)-[*]->(message:Message)',
-    'RETURN DISTINCT conversation.latest_message, match, collect(message) as messages',
+    'RETURN DISTINCT conversation.latest_message, conversation, match, collect(message) as messages',
     'ORDER BY conversation.latest_message DESC'
   ].join('\n'); 
 
@@ -95,13 +99,23 @@ exports.retrieveConversations = function(screenName, callback) {
     } else {
       var conversations = {};
       _.each(results, function(result){
+        // console.log('result');
+        console.log(result.conversation);
+        // console.log(result['conversation.status']);
         var match = result.match._data.data;
         var screen_name = result.match._data.data.screen_name;
+
+        var readStatus = {};
+        readStatus[screen_name] = result.conversation._data.data[screen_name + '_read'];
+        readStatus[screenName] = result.conversation._data.data[screenName + '_read'];
+        
+        // var updateStatus = result['conversation.status'];
+        // console.log(updateStatus);
         var messages = _.map(result.messages, function(message){
           // return message._data.data;
           return _.extend(message._data.data, {timestamp: getTimestamp(message._data.data.time)});
         });
-        conversations[screen_name] = {match: match, messages: messages, latest_message_time: (new Date(messages[0].time)).getTime()};
+        conversations[screen_name] = {match: match, messages: messages, latest_message_time: (new Date(messages[0].time)).getTime(),read_status: readStatus};
       });
 
       callback(conversations);
@@ -114,12 +128,16 @@ exports.sendMessage = function(message){
 
   var conversationID = getConversationID(message.sender, message.recipient);
 
-  console.log(typeof message.sender);
+  // console.log(typeof message.sender);
 
-  var readStatus = {};
-  readStatus[message.sender] = 'true';
-  readStatus[message.recipient] = 'false';
-  readStatus = JSON.stringify(readStatus);
+  // var readStatus = {};
+  // readStatus[message.sender] = true;
+  // readStatus[message.recipient] = false;
+  // readStatus = JSON.stringify(readStatus);
+
+  // console.log('sendMessage' + readStatus);
+  // var senderRead = message.sender + '_read';
+  // var recipientRead = message.recipient + '_read';
 
   var params = {
     'conversationID': conversationID,
@@ -127,13 +145,16 @@ exports.sendMessage = function(message){
     'recipient':message.recipient,
     'text':message.text,
     'time': new Date(),
-    'status': readStatus
+    'sender_read': message.sender + '_read',
+    'recipient_read': message.recipient + '_read'
   };
 
   var conversationQuery = [ 
     'MERGE (conversation:Conversation {id: {conversationID}})',
-    'ON MATCH SET conversation.latest_message = {time}, conversation.status = {status}',
-    'ON CREATE SET conversation.latest_message = {time}, conversation.new_conversation = true, conversation.status = {status}',
+    'ON MATCH SET conversation.latest_message = {time}, conversation.' + message['sender'] + '_read = true, conversation.' + message['recipient'] + '_read = false',
+    // 'ON MATCH SET conversation.latest_message = {time}, conversation[{sender_read}] = true, conversation[{recipient_read}] = false',
+    'ON CREATE SET conversation.latest_message = {time}, conversation.new_conversation = true, conversation.' + message.sender + '_read = true, conversation.' + message.recipient + '_read = false',
+    // 'ON CREATE SET conversation.latest_message = {time}, conversation.new_conversation = true, conversation[{sender_read}] = true, conversation[{recipient_read}] = false',
     'WITH conversation', 
     'MATCH (sender:User {screen_name: {sender} }), (recipient:User {screen_name: {recipient} })',
     'CREATE UNIQUE (sender)-[:HAS_CONVERSATION]->(conversation)<-[:HAS_CONVERSATION]-(recipient)',

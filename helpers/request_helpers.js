@@ -57,7 +57,7 @@ exports.getMessage = function(request, response) {
   var user = request.body.user;
   var match = request.body.match;
   chat.retrieveSingleConversation(user, match, function(data){
-    console.log(data);
+    // console.log(data);
     response.send(200, data);
   });
 };
