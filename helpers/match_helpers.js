@@ -7,6 +7,7 @@ var timeago = require('timeago');
 var _  = require('underscore');
 var twitter = require('./twitter_helpers');
 var semantic = require('./semantic_helpers');
+var sm = require('./semantic_match_helpers');
 
 exports.findMatches = function(screenName, location, callback){
 
@@ -112,7 +113,7 @@ exports.findMatches = function(screenName, location, callback){
             match.common_friends = friends;
             matchCount--;
             if (matchCount === 0 ) {
-              packageResults(matches)
+              sm.retrieveUserDoc(screenName, matches);
             }
           }
         });
