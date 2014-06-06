@@ -70,23 +70,29 @@ var retrieveMatchDocs = function (userDoc, corpus, matches) {
 
 
 var calculateStats = function(userDoc, matchDocs, corpus) {
-
-  console.log("USER", userDoc);
-  console.log("MATCH", matchDocs);
-  console.log("CCCCCC", corpus);
-  
+  console.log('====calculate stats=====');
+  var tfu = calculateTF(userDoc);
+  console.log("matchdocs", matchDocs);
+  var tfm = _.each(matchDocs, function(match){
+    console.log(match);
+    calculateTF(match);
+  });
+  console.log("term freq match", tfm);
+  //console.log("CCCCCC", corpus);  
 };
 
 
-
-var calculateTF = exports.calculateTF = function(term, userDoc){
-  var size=0, tf;
-  _.each(userDoc, function(value){
-    size+=value;
-  });
-  tf = userDoc[term]/size;
-  console.log(tf);
+var calculateTF = exports.calculateTF = function(userDoc){
+   var size=0, tf = {};
+   _.each(userDoc, function(value){
+     size+=value;
+   });
+  _.map(userDoc, function(value, key){
+     tf[key] = value/size;
+    });
   return tf;
+
+
 }  
 
 var calculateIDF = exports.calculateIDF = function(term, corpus, userDocs){
