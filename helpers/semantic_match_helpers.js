@@ -34,6 +34,7 @@ var retrieveMatchDocs = function (userDoc, corpus, matches) {
 
   var count = matches.length;
   var matchDocs = [];
+  var docCount;
 
   console.log("match count", count);
 
@@ -44,8 +45,10 @@ var retrieveMatchDocs = function (userDoc, corpus, matches) {
     };
 
     var query = [
-      'MATCH (document:Document {user: {screen_name}})',
-      'RETURN document'
+     'MATCH (document:Document)',
+     'WITH document',
+     'MATCH (userDoc:Document {user: {screen_name}}), (corpus:Corpus)',
+     'RETURN COUNT(document) as count, userDoc, corpus'
     ].join('\n');
 
     db.query(query, params, function (error, results) {
@@ -55,27 +58,29 @@ var retrieveMatchDocs = function (userDoc, corpus, matches) {
         var matchDoc = {};
 
         if ( results.length !== 0 ) {
-          matchDoc = results[0].document._data.data.user_doc;
+          matchDoc = results[0].userDoc._data.data.user_doc;
           matchDoc = JSON.parse(matchDoc);
+          docCount = results[0].count;
         }
         matchDocs.push(matchDoc);
         count--;
         if ( count === 0) {
-          calculateStats(userDoc, matchDocs, corpus); 
+          calculateStats(userDoc, matchDocs, corpus, docCount); 
         }
       }
     });
   });
 };
 
-var calculateStats = function(userDoc, matchDocs, corpus) {
+var calculateStats = function(userDoc, matchDocs, corpus, docCount) {
   console.log('====calculate stats=====');
   var tfu = calculateTF(userDoc);
   var tfm =[];
   _.each(matchDocs, function(match){
     tfm.push(calculateTF(match));
   });
-  //var idf = calculateIDF(corpus, size);
+  var idf = calculateIDF(corpus, docCount);
+  console.log(tfu, tfm, idf);
 };
 
 
@@ -92,13 +97,41 @@ var calculateTF = exports.calculateTF = function(userDoc){
 
 
 var calculateIDF = exports.calculateIDF = function(corpus, totalNumOfDocs){
-  var idf;
-  var termOccurances;
+  var idf, df={};
+  var total, termOccurances=0;
   _.each(corpus, function(value){
-    if (value === term){
+    if (value){
       termOccurances += value;
+      total = value/termOccurances;
     } 
   });
-  idf = Math.log(totalNumOfDocs/termOccurances);
-  return corpus;
+  idf = totalNumOfDocs/termOccurances;
+  return idf;
 };
+
+var userSimilarities = exports.userSimilarities = function(userTF, matchTFs){
+  //calculate tf similarities for each user-match pair
+  _.each(matchTFs, function(matchTF){
+    findMatchTFs(userTF, matchTF);
+  });
+    //calculate cosine similarity for each pair
+    calculateCosineSimilarity();
+    //determine new ranks
+    //return new ranks
+};
+
+var findMatchTFs = exports.findMatchTFs = function(userTF, matchTF){
+  var uMatches = {}, mMatches = {}, count = 0;
+  _.each(userTF, function(value, key){
+    if(_.contains(Object.keys(matchTF), key)){
+      count++;
+      uMatches[key] = value;
+      mMatches[key] = matchTF[key];
+    }
+  });
+  return [uMatches, mMatches, count];
+};
+
+var calculateCosineSimilarity = exports.calculateCosineSimilarity = function(){
+  //return the cosine similarity value
+}
