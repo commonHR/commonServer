@@ -127,7 +127,6 @@ exports.findMatches = function(screenName, location, callback){
   };
 
 
-  //This function will calculate a tf/itf for each match and rank them according to a new weigth
   var matchSemantics = function(matches, screenName){
     console.log('inside match semantics');
     //get the tf for user's tweets
@@ -138,7 +137,6 @@ exports.findMatches = function(screenName, location, callback){
     //call cosine func
     //add results to filter
     //var userTF = twitter.getTweets(screenName);
-
     // var matchTF = _.each(matches, function(match){
     //   twitter.getTweets(match.screen_name);
     // });

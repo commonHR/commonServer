@@ -170,32 +170,3 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
   retrieveCorpus();
 
 };
-
-// var calculateTF = exports.calculateTF = function(userDoc){
-//   var size=0, tfs = {};
-//   _.each(userDoc, function(value){
-//     size+=value;
-//   });
-//   _.map(userDoc, function(value, key){
-//     tfs[key] = value/size;
-//    });
-//   return tfs;
-// }  
-
-// var calculateIDF = exports.calculateCorpus = function(userDocs){
-//   var corpus = {};
-//   //foreach parsed tweet add it to corpus  
-//   _.each(userDocs, function(userdoc){
-//     _.each(userdoc, function(value, key, collection){
-//       if (corpus[value]){
-//         corpus[value] += key;
-//       } 
-//       else {
-//         corpus[value] = key;
-//       }
-//     });
-//   });
-//   var totalNumOfDocs = userDocs.length;
-//   var docsTermAppears = 0;  
-//   return corpus;
-// }

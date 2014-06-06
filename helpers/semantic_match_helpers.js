@@ -80,18 +80,20 @@ var calculateStats = function(userDoc, matchDocs, corpus, docCount) {
     tfm.push(calculateTF(match));
   });
   var idf = calculateIDF(corpus, docCount);
-  console.log(tfu, tfm, idf);
+  console.log(tfu);
+  console.log(tfm);
+  userSimilarities(tfu, tfm);
 };
 
 
 var calculateTF = exports.calculateTF = function(userDoc){
-   var size=0, tf = {};
-   _.each(userDoc, function(value){
-     size+=value;
-   });
+  var size=0, tf = {};
+  _.each(userDoc, function(value){
+    size+=value;
+  });
   _.map(userDoc, function(value, key){
-     tf[key] = value/size;
-    });
+    tf[key] = value/size;
+  });
   return tf;
 };
 
@@ -110,14 +112,14 @@ var calculateIDF = exports.calculateIDF = function(corpus, totalNumOfDocs){
 };
 
 var userSimilarities = exports.userSimilarities = function(userTF, matchTFs){
-  //calculate tf similarities for each user-match pair
+  var count = 0;
+  var matchedUserDocs = [];
+  console.log('matchtfs length', matchTFs.length);
   _.each(matchTFs, function(matchTF){
-    findMatchTFs(userTF, matchTF);
+    count++;
+    matchedUserDocs.push(findMatchTFs(userTF, matchTF));
   });
-    //calculate cosine similarity for each pair
-    calculateCosineSimilarity();
-    //determine new ranks
-    //return new ranks
+    console.log(count, 'matchedUserDocs', matchedUserDocs);
 };
 
 var findMatchTFs = exports.findMatchTFs = function(userTF, matchTF){
@@ -131,7 +133,3 @@ var findMatchTFs = exports.findMatchTFs = function(userTF, matchTF){
   });
   return [uMatches, mMatches, count];
 };
-
-var calculateCosineSimilarity = exports.calculateCosineSimilarity = function(){
-  //return the cosine similarity value
-}
