@@ -19,7 +19,7 @@ exports.parseTweets = function(screenName, tweets) {
     people: true, take: true, out: true, into: true, just: true, see: true, him: true, your: true, come: true, could: true, now: true,
     than: true, like: true, other: true, how: true, then: true, its: true, our: true, two: true, more: true, these: true, want: true,
     way: true, look: true, first: true, also: true, new: true, because: true, day: true, use: true, no: true, man: true, find: true,
-    here: true, thing: true, give: true, many: true, well: true, only: true };
+    here: true, thing: true, give: true, many: true, well: true, only: true, is: true, cant: true, does: true, while: true};
   
   var filteredWords = [];
 

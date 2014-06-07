@@ -80,8 +80,8 @@ var calculateStats = function(userDoc, matchDocs, corpus, docCount) {
     tfm.push(calculateTF(match));
   });
   var idf = calculateIDF(corpus, docCount);
-  console.log(tfu);
-  console.log(tfm);
+  //console.log(tfu);
+  //console.log(tfm);
   userSimilarities(tfu, tfm);
 };
 
@@ -111,16 +111,16 @@ var calculateIDF = exports.calculateIDF = function(corpus, totalNumOfDocs){
   return idf;
 };
 
+
 var userSimilarities = exports.userSimilarities = function(userTF, matchTFs){
-  var count = 0;
   var matchedUserDocs = [];
-  console.log('matchtfs length', matchTFs.length);
+  //console.log('matchtfs length', matchTFs.length);
   _.each(matchTFs, function(matchTF){
-    count++;
     matchedUserDocs.push(findMatchTFs(userTF, matchTF));
   });
-    console.log(count, 'matchedUserDocs', matchedUserDocs);
+    //console.log('matchedUserDocs', matchedUserDocs);
 };
+
 
 var findMatchTFs = exports.findMatchTFs = function(userTF, matchTF){
   var uMatches = {}, mMatches = {}, count = 0;
@@ -131,5 +131,29 @@ var findMatchTFs = exports.findMatchTFs = function(userTF, matchTF){
       mMatches[key] = matchTF[key];
     }
   });
+  if(Object.keys(uMatches).length>0 && Object.keys(mMatches).length>0){
+    calculateCosineSimilarity(uMatches, mMatches, count);
+  }
   return [uMatches, mMatches, count];
+};
+
+var calculateCosineSimilarity = exports.calculateCosineSimilarity = function(uMatches, mMatches, count){
+  var nominator = 0;
+  var denom1 = 0, denom2 = 0, denominator;
+  var cosineSimilarity = 0;
+  console.log("uMatches", uMatches);
+  console.log('mMatches', mMatches);
+  if(Object.keys(uMatches).length>0 && Object.keys(mMatches).length>0){
+    console.log('inside cosineSimilarity');
+    _.map(uMatches, function(value, key){
+      nominator += uMatches[key] * mMatches[key];
+    });
+    _.map(uMatches, function(value, key){
+      denom1 += uMatches[key]*uMatches[key];
+      denom2 += mMatches[key]*mMatches[key]; 
+    });
+    denominator = Math.sqrt(denom1+denom2);
+  }
+  cosineSimilarity = nominator/denominator;
+  console.log(cosineSimilarity);
 };
