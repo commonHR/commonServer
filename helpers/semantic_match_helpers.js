@@ -11,10 +11,9 @@ exports.retrieveUserDoc = function (screenName, matches) {
     var count = matches.length;
     var matchDocs = [];
     var docCount;
-    var matchingTweetsWithRank;
     var deferred = Q.defer();
 
-    console.log("match count", count);
+    //console.log("match count", count);
 
     _.each(matches, function(match) {
       
@@ -47,21 +46,21 @@ exports.retrieveUserDoc = function (screenName, matches) {
             count--;
             if ( count === 0) {
               deferred.resolve(calculateStats(userDoc, matchDocs, corpus, docCount)); 
-              //console.log("in retrieveMatchDocs", matchingTweetsWithRank);
             }
           }
         });
       } 
       queryMethod();
-
     });
-      return deferred.promise;
+    return deferred.promise;
 
       // queryMethod().then(function(result){
       //   return result;
       // });
       // return queryMethod();
   };
+
+  var promise = Q.defer();
 
   var params = {
     'screen_name': screenName
@@ -72,20 +71,28 @@ exports.retrieveUserDoc = function (screenName, matches) {
     'RETURN document, corpus'
   ].join('\n');
 
-  db.query(query, params, function (error, results) {
-    if ( error ) {
-      console.log(error);
-    } else {
-      var userDoc = results[0].document._data.data.user_doc;
-      var corpus = results[0].corpus._data.data.corpus_data;
-      userDoc = JSON.parse(userDoc);
-      corpus = JSON.parse(corpus);
-      retrieveMatchDocs(userDoc, corpus, matches).then(function(result){
-      console.log('xxxxxxxxxxxxxxxxxx', result);
-      });
-    }
-  });
+  var matchQueryMethod = function(){
 
+    db.query(query, params, function (error, results) {
+      if ( error ) {
+        console.log(error);
+      } else {
+        var userDoc = results[0].document._data.data.user_doc;
+        var corpus = results[0].corpus._data.data.corpus_data;
+        userDoc = JSON.parse(userDoc);
+        corpus = JSON.parse(corpus);
+        promise.resolve(retrieveMatchDocs(userDoc, corpus, matches)
+          .then(function(result){
+            //console.log('===========result========', result); 
+            return result; 
+          })
+        );
+      }
+    });
+  };
+
+  matchQueryMethod();
+  return promise.promise;
 };
 
 var calculateStats = function(userDoc, matchDocs, corpus, docCount) {

@@ -8,6 +8,7 @@ var _  = require('underscore');
 var twitter = require('./twitter_helpers');
 var semantic = require('./semantic_helpers');
 var sm = require('./semantic_match_helpers');
+var Q = require('q');
 
 exports.findMatches = function(screenName, location, callback){
 
@@ -114,20 +115,22 @@ exports.findMatches = function(screenName, location, callback){
             match.common_friends = friends;
             matchCount--;
             if (matchCount === 0 ) {
-              //if the user & match have common words (in tweets)
-              // this method will return the cosine similarity coefficient
-              matchingTweetsWithRanks = sm.retrieveUserDoc(screenName, matches);
+              //if the user & match have common words (in tweets) this method will 
+              //return the word list with term frequency and cosine similarity coefficient
+              (sm.retrieveUserDoc(screenName, matches)).then(function(result){
+                console.log('matchingTweetsWithRanks in match helpers', result);
+                semanticRanking(screenName, matches, result);
+              });
             }
           }
         });
       });
     }
-    console.log('matchingTweetsWithRanks', matchingTweetsWithRanks);
   }; 
 
 
-  var semanticRanking = function(matches) {
-
+  var semanticRanking = function(screenName, matches, results) {
+    
   };
 
 
