@@ -2,11 +2,67 @@ var neo4j = require('neo4j');
 // var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
 var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
 var _  = require('underscore');
-var q = require('q');
+var Q = require('q');
 
 exports.retrieveUserDoc = function (screenName, matches) {
 
-  var matchingTweetsWithRank;
+  var retrieveMatchDocs = function (userDoc, corpus, matches) {
+
+    var count = matches.length;
+    var matchDocs = [];
+    var docCount;
+    var matchingTweetsWithRank;
+    var deferred = Q.defer();
+
+    console.log("match count", count);
+
+    _.each(matches, function(match) {
+      
+      var params = {
+        'screen_name': match.screen_name
+      };
+
+      var query = [
+       'MATCH (document:Document)',
+       'WITH document',
+       'MATCH (userDoc:Document {user: {screen_name}}), (corpus:Corpus)',
+       'RETURN COUNT(document) as count, userDoc, corpus'
+      ].join('\n');
+
+
+      var queryMethod = function(){
+
+        db.query(query, params, function (error, results) {
+          if ( error ) {
+            console.log(error);
+          } else {
+            var matchDoc = {};
+
+            if ( results.length !== 0 ) {
+              matchDoc = results[0].userDoc._data.data.user_doc;
+              matchDoc = JSON.parse(matchDoc);
+              docCount = results[0].count;
+            }
+            matchDocs.push(matchDoc);
+            count--;
+            if ( count === 0) {
+              deferred.resolve(calculateStats(userDoc, matchDocs, corpus, docCount)); 
+              //console.log("in retrieveMatchDocs", matchingTweetsWithRank);
+            }
+          }
+        });
+      } 
+      queryMethod();
+
+    });
+      return deferred.promise;
+
+      // queryMethod().then(function(result){
+      //   return result;
+      // });
+      // return queryMethod();
+  };
+
   var params = {
     'screen_name': screenName
   };
@@ -24,60 +80,12 @@ exports.retrieveUserDoc = function (screenName, matches) {
       var corpus = results[0].corpus._data.data.corpus_data;
       userDoc = JSON.parse(userDoc);
       corpus = JSON.parse(corpus);
-      matchingTweetsWithRank = retrieveMatchDocs(userDoc, corpus, matches);
+      retrieveMatchDocs(userDoc, corpus, matches).then(function(result){
+      console.log('xxxxxxxxxxxxxxxxxx', result);
+      });
     }
   });
-  console.log(matchingTweetsWithRank);
-  //return matchingTweetsWithRank;
-};
 
-
-var retrieveMatchDocs = function (userDoc, corpus, matches) {
-
-  var count = matches.length;
-  var matchDocs = [];
-  var docCount;
-  var matchingTweetsWithRank;
-
-  console.log("match count", count);
-
-  _.each(matches, function(match) {
-    
-    var params = {
-      'screen_name': match.screen_name
-    };
-
-    var query = [
-     'MATCH (document:Document)',
-     'WITH document',
-     'MATCH (userDoc:Document {user: {screen_name}}), (corpus:Corpus)',
-     'RETURN COUNT(document) as count, userDoc, corpus'
-    ].join('\n');
-
-//    var query = function(){} 
-
-
-    db.query(query, params, function (error, results) {
-      if ( error ) {
-        console.log(error);
-      } else {
-        var matchDoc = {};
-
-        if ( results.length !== 0 ) {
-          matchDoc = results[0].userDoc._data.data.user_doc;
-          matchDoc = JSON.parse(matchDoc);
-          docCount = results[0].count;
-        }
-        matchDocs.push(matchDoc);
-        count--;
-        if ( count === 0) {
-          matchingTweetsWithRank = calculateStats(userDoc, matchDocs, corpus, docCount); 
-          console.log("in retrieveMatchDocs", matchingTweetsWithRank);
-        }
-      }
-    });
-  });
-  return matchingTweetsWithRank;
 };
 
 var calculateStats = function(userDoc, matchDocs, corpus, docCount) {
