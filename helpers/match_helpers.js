@@ -85,6 +85,7 @@ exports.findMatches = function(screenName, location, callback){
   var updateMatchesWithFriends = function(matches){
 
     var matchCount = matches.length;
+    var matchingTweetsWithRanks;
 
     if ( matchCount === 0 ) {
       packageResults(matches);
@@ -113,12 +114,15 @@ exports.findMatches = function(screenName, location, callback){
             match.common_friends = friends;
             matchCount--;
             if (matchCount === 0 ) {
-              sm.retrieveUserDoc(screenName, matches);
+              //if the user & match have common words (in tweets)
+              // this method will return the cosine similarity coefficient
+              matchingTweetsWithRanks = sm.retrieveUserDoc(screenName, matches);
             }
           }
         });
       });
     }
+    console.log('matchingTweetsWithRanks', matchingTweetsWithRanks);
   }; 
 
 
@@ -126,22 +130,6 @@ exports.findMatches = function(screenName, location, callback){
 
   };
 
-
-  var matchSemantics = function(matches, screenName){
-    console.log('inside match semantics');
-    //get the tf for user's tweets
-    //get the tf for each match's tweets
-    //get the itf for matches and user
-    //call term freq
-    //call inverse term freq incl users tweets
-    //call cosine func
-    //add results to filter
-    //var userTF = twitter.getTweets(screenName);
-    // var matchTF = _.each(matches, function(match){
-    //   twitter.getTweets(match.screen_name);
-    // });
-
-  };
 
   var packageResults = function(matches) {
 

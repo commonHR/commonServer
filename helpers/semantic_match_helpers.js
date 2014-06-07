@@ -2,10 +2,11 @@ var neo4j = require('neo4j');
 // var db = new neo4j.GraphDatabase('http://neo4jdb.cloudapp.net:7474');
 var db = new neo4j.GraphDatabase('http://tweetUp:k7b6QjQKpK4cZwG1aI3g@tweetup.sb02.stations.graphenedb.com:24789');
 var _  = require('underscore');
-
+var q = require('q');
 
 exports.retrieveUserDoc = function (screenName, matches) {
 
+  var matchingTweetsWithRank;
   var params = {
     'screen_name': screenName
   };
@@ -23,10 +24,11 @@ exports.retrieveUserDoc = function (screenName, matches) {
       var corpus = results[0].corpus._data.data.corpus_data;
       userDoc = JSON.parse(userDoc);
       corpus = JSON.parse(corpus);
-      retrieveMatchDocs(userDoc, corpus, matches);
+      matchingTweetsWithRank = retrieveMatchDocs(userDoc, corpus, matches);
     }
   });
-
+  console.log(matchingTweetsWithRank);
+  //return matchingTweetsWithRank;
 };
 
 
@@ -35,6 +37,7 @@ var retrieveMatchDocs = function (userDoc, corpus, matches) {
   var count = matches.length;
   var matchDocs = [];
   var docCount;
+  var matchingTweetsWithRank;
 
   console.log("match count", count);
 
@@ -51,6 +54,9 @@ var retrieveMatchDocs = function (userDoc, corpus, matches) {
      'RETURN COUNT(document) as count, userDoc, corpus'
     ].join('\n');
 
+//    var query = function(){} 
+
+
     db.query(query, params, function (error, results) {
       if ( error ) {
         console.log(error);
@@ -65,11 +71,13 @@ var retrieveMatchDocs = function (userDoc, corpus, matches) {
         matchDocs.push(matchDoc);
         count--;
         if ( count === 0) {
-          calculateStats(userDoc, matchDocs, corpus, docCount); 
+          matchingTweetsWithRank = calculateStats(userDoc, matchDocs, corpus, docCount); 
+          console.log("in retrieveMatchDocs", matchingTweetsWithRank);
         }
       }
     });
   });
+  return matchingTweetsWithRank;
 };
 
 var calculateStats = function(userDoc, matchDocs, corpus, docCount) {
@@ -80,9 +88,9 @@ var calculateStats = function(userDoc, matchDocs, corpus, docCount) {
     tfm.push(calculateTF(match));
   });
   var idf = calculateIDF(corpus, docCount);
-  //console.log(tfu);
-  //console.log(tfm);
-  userSimilarities(tfu, tfm);
+  //in the order of matches returns the matching words, their TF's and cosineSimilarity coefficient of the match
+  var userSim = userSimilarities(tfu, tfm);
+  return userSim;
 };
 
 
@@ -114,11 +122,10 @@ var calculateIDF = exports.calculateIDF = function(corpus, totalNumOfDocs){
 
 var userSimilarities = exports.userSimilarities = function(userTF, matchTFs){
   var matchedUserDocs = [];
-  //console.log('matchtfs length', matchTFs.length);
   _.each(matchTFs, function(matchTF){
     matchedUserDocs.push(findMatchTFs(userTF, matchTF));
   });
-    //console.log('matchedUserDocs', matchedUserDocs);
+  return matchedUserDocs;
 };
 
 
@@ -132,17 +139,19 @@ var findMatchTFs = exports.findMatchTFs = function(userTF, matchTF){
     }
   });
   if(Object.keys(uMatches).length>0 && Object.keys(mMatches).length>0){
-    calculateCosineSimilarity(uMatches, mMatches, count);
+    var c = calculateCosineSimilarity(uMatches, mMatches, count);
+    console.log('cosineSimilarity in findMatchTFs',c);
+    return [uMatches, mMatches, c];
   }
-  return [uMatches, mMatches, count];
+  else {
+    return [];
+  }
 };
 
 var calculateCosineSimilarity = exports.calculateCosineSimilarity = function(uMatches, mMatches, count){
   var nominator = 0;
   var denom1 = 0, denom2 = 0, denominator;
   var cosineSimilarity = 0;
-  console.log("uMatches", uMatches);
-  console.log('mMatches', mMatches);
   if(Object.keys(uMatches).length>0 && Object.keys(mMatches).length>0){
     console.log('inside cosineSimilarity');
     _.map(uMatches, function(value, key){
@@ -155,5 +164,6 @@ var calculateCosineSimilarity = exports.calculateCosineSimilarity = function(uMa
     denominator = Math.sqrt(denom1+denom2);
   }
   cosineSimilarity = nominator/denominator;
-  console.log(cosineSimilarity);
+  console.log('cosineSimilarity', cosineSimilarity);
+  return cosineSimilarity;
 };
