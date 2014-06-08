@@ -12,7 +12,8 @@
     "neo4j": "^1.1.0",
     "requestify": "^0.1.16",
     "timeago": "^0.1.0",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "q": "^1.0.1"
   },
   "devDependencies": {
     "mocha": "^1.18.2",
