@@ -153,6 +153,7 @@ exports.findMatches = function(screenName, location, callback){
       count++;
     });
     console.log('matches common words', matches[common_words]);
+    packageResults(matches);
   };
 
 
