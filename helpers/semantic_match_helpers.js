@@ -10,9 +10,6 @@ exports.retrieveUserDoc = function (screenName, matches) {
 
     var count = matches.length;
 
-    //old
-    // var matchDocs = [];
-    //new
     var matchDocs = {};
 
     var docCount;
@@ -41,8 +38,6 @@ exports.retrieveUserDoc = function (screenName, matches) {
           if ( error ) {
             console.log(error);
           } else {
-
-            // var matchDoc = {};
 
             if ( results.length !== 0 ) {
               matchName = results[0].userDoc._data.data.user;
@@ -106,30 +101,10 @@ var calculateStats = function(userDoc, matchDocs, corpus, docCount) {
   // var tfm = {};
   var tfm = {};
   _.each(matchDocs, function(match, key){
-
     tfm[key] = (calculateTF(match));
-    // tfm.push(calculateTF(match));
-
   });
-  // console.log('tfm');
-  // console.log(tfm);
-  // console.log('tfm ends ***');
 
-  // var idf = calculateIDF(corpus, docCount);
-  //in the order of matches returns the matching words, their TF's and cosineSimilarity coefficient of the match
   var userSim = userSimilarities(tfu, tfm);
-
-  // var userSim = {};
-  // _.each(tfm, function(tf, key){
-  //   userSim[key] = findMatchTFs(tf, tfm);
-  // });
-
-  // console.log('***userSim starts***');
-  // console.log(userSim);
-  // console.log('***userSim ends***');
-
-
-
 
   return userSim;
 };
@@ -162,16 +137,10 @@ var calculateIDF = exports.calculateIDF = function(corpus, totalNumOfDocs){
 
 
 var userSimilarities = exports.userSimilarities = function(userTF, matchTFs){
-  // console.log('userTF');
-  // console.log(userTF);
-  // console.log('matchTFs');
-  // console.log(matchTFs);
 
   var matchedUserDocs = {};
-  /***/
   _.each(matchTFs, function(matchTF, key){
-    // console.log('matchTF');
-    // console.log(matchTF);
+
     matchedUserDocs[key] = findMatchTFs(userTF, matchTF);
   });
 
@@ -183,9 +152,6 @@ var userSimilarity = exports.userSimilarity = function(userTF, matchTF){
 };
 
 var findMatchTFs = exports.findMatchTFs = function(userTF, matchTF){
-
-  // console.log('in here, userTF\n ' + userTF);
-  // console.log('in here, matchTF\n ' + matchTF);  
 
   var uMatches = {}, mMatches = {}, count = 0;
   _.each(userTF, function(value, key){

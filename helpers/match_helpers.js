@@ -172,6 +172,7 @@ exports.findMatches = function(screenName, location, maxDistance, maxTime, callb
     });
 
     callback(finalResults);
+  };
 
 
     // _.each(matches, function(match){
@@ -196,19 +197,19 @@ exports.findMatches = function(screenName, location, maxDistance, maxTime, callb
     // });
     // console.log('matches common words', matches[common_words]);
     // packageResults(matches);
-  };
-};
-
-
-//   var packageResults = function(matches) {
-
-//     var results = {};
-
-//     _.each(matches, function(match){
-//       results[match.screen_name] = match;
-//     });
-    
-//     console.log(results);
-//     callback(results);
-//   }; 
+//   };
 // };
+
+
+  var packageResults = function(matches) {
+
+    var results = {};
+
+    _.each(matches, function(match){
+      results[match.screen_name] = match;
+    });
+    
+    console.log(results);
+    callback(results);
+  }; 
+};
