@@ -7,9 +7,9 @@ exports.parseTweets = function(screenName, tweets) {
 
   var words = _.map(tweets, function(tweet){
     return tweet.text.toLowerCase().replace(/[^\w\s]/gi, '');
-  }).join(',').split(' ');
+  }).join(',').replace(/[^\w\s]/gi, ' ').split(' ');
   
-  var linkFilter = /^http?:/;
+  var linkFilter = /^http/;
 
   var commonWords = { the: true, be: true, and: true, of: true, a: true, in: true, to: true, have: true, it: true, I: true, that: true,
     for: true, you: true, he: true, with: true, on: true, do: true, say: true, this: true, they: true, at: true, but: true, we: true,
@@ -19,12 +19,12 @@ exports.parseTweets = function(screenName, tweets) {
     people: true, take: true, out: true, into: true, just: true, see: true, him: true, your: true, come: true, could: true, now: true,
     than: true, like: true, other: true, how: true, then: true, its: true, our: true, two: true, more: true, these: true, want: true,
     way: true, look: true, first: true, also: true, new: true, because: true, day: true, use: true, no: true, man: true, find: true,
-    here: true, thing: true, give: true, many: true, well: true, only: true };
+    here: true, thing: true, give: true, many: true, well: true, only: true, is: true, cant: true, does: true, while: true};
   
   var filteredWords = [];
 
   _.each(words, function(word){
-    if ( !linkFilter.test(word) && !commonWords[word] ) {
+    if ( !linkFilter.test(word) && !commonWords[word] && word !== '') {
       filteredWords.push(word);
     }
   });
@@ -170,32 +170,3 @@ var updateCorpus = function(oldUserDoc, newUserDoc) {
   retrieveCorpus();
 
 };
-
-// var calculateTF = exports.calculateTF = function(userDoc){
-//   var size=0, tfs = {};
-//   _.each(userDoc, function(value){
-//     size+=value;
-//   });
-//   _.map(userDoc, function(value, key){
-//     tfs[key] = value/size;
-//    });
-//   return tfs;
-// }  
-
-// var calculateIDF = exports.calculateCorpus = function(userDocs){
-//   var corpus = {};
-//   //foreach parsed tweet add it to corpus  
-//   _.each(userDocs, function(userdoc){
-//     _.each(userdoc, function(value, key, collection){
-//       if (corpus[value]){
-//         corpus[value] += key;
-//       } 
-//       else {
-//         corpus[value] = key;
-//       }
-//     });
-//   });
-//   var totalNumOfDocs = userDocs.length;
-//   var docsTermAppears = 0;  
-//   return corpus;
-// }

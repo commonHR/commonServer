@@ -7,6 +7,8 @@ var timeago = require('timeago');
 var _  = require('underscore');
 var twitter = require('./twitter_helpers');
 var semantic = require('./semantic_helpers');
+var sm = require('./semantic_match_helpers');
+var Q = require('q');
 
 exports.findMatches = function(screenName, location, maxDistance, maxTime, callback){
 
@@ -84,6 +86,7 @@ exports.findMatches = function(screenName, location, maxDistance, maxTime, callb
   var updateMatchesWithFriends = function(matches){
 
     var matchCount = matches.length;
+    var matchingTweetsWithRanks;
 
     if ( matchCount === 0 ) {
       packageResults(matches);
@@ -112,7 +115,19 @@ exports.findMatches = function(screenName, location, maxDistance, maxTime, callb
             match.common_friends = friends;
             matchCount--;
             if (matchCount === 0 ) {
-              packageResults(matches)
+              //if the user & match have common words (in tweets) this method will 
+              //return the word list with term frequency and cosine similarity coefficient
+              (sm.retrieveUserDoc(screenName, matches)).then(function(result){
+                //console.log('matchingTweetsWithRanks in match helpers', result);
+
+
+                // console.log('result to be used in semanticRanking');
+                // console.log(result);
+                // console.log('matches to be used');
+                // console.log(matches);
+                semanticRanking(screenName, matches, result);
+              });
+
             }
           }
         });
@@ -121,38 +136,79 @@ exports.findMatches = function(screenName, location, maxDistance, maxTime, callb
   }; 
 
 
-  var semanticRanking = function(matches) {
+  var semanticRanking = function(screenName, matches, smResults) {
 
-  };
+    var finalResults = {};
 
-
-  //This function will calculate a tf/itf for each match and rank them according to a new weigth
-  var matchSemantics = function(matches, screenName){
-    console.log('inside match semantics');
-    //get the tf for user's tweets
-    //get the tf for each match's tweets
-    //get the itf for matches and user
-    //call term freq
-    //call inverse term freq incl users tweets
-    //call cosine func
-    //add results to filter
-    //var userTF = twitter.getTweets(screenName);
-
-    // var matchTF = _.each(matches, function(match){
-    //   twitter.getTweets(match.screen_name);
-    // });
-
-  };
-
-  var packageResults = function(matches) {
-
-    var results = {};
-
+    //sort matches into hash table
     _.each(matches, function(match){
-      results[match.screen_name] = match;
+      finalResults[match.screen_name] = match;
     });
-    
-    console.log(results);
-    callback(results);
-  }; 
+
+    _.each(finalResults, function(match){
+      var screenName = match.screen_name;
+      if(smResults[screenName].length > 0){
+        //has common words
+        match.smSimilarity = smResults[screenName][2];
+        var wordScores = [];
+        _.each(smResults[screenName][0], function(score, word){
+          if(word.length > 4){
+            var accuScore = smResults[screenName][0][word] + smResults[screenName][1][word];
+            wordScores.push([word, accuScore]);            
+          }
+        });
+
+        wordScores.sort(function(a, b){
+          return a[1] < b[1];
+        });
+
+        match.common_words = _.map(wordScores.slice(0, 4), function(arr){
+          return arr[0];
+        });
+
+      }else{
+        match.smSimilarity = 0;
+      }
+    });
+
+    callback(finalResults);
+
+
+    // _.each(matches, function(match){
+    //   console.
+    // }
+
+    //user plus match and result  
+    // count = 0;
+    // _.each(matches, function(match){
+    //   var words = Object.keys(results[count][0]);
+    //   var commons = [];
+    //   if(words.length>0){
+    //     _.each(words, function(word){
+    //       if(word.length>4){
+    //         commons.push(word);
+    //       }
+    //     });
+    //   }
+    //   console.log(commons);
+    //   matches[common_words] = commons;
+    //   count++;
+    // });
+    // console.log('matches common words', matches[common_words]);
+    // packageResults(matches);
+  };
 };
+
+
+//   var packageResults = function(matches) {
+
+//     var results = {};
+
+//     _.each(matches, function(match){
+//       results[match.screen_name] = match;
+//     });
+    
+//     console.log(results);
+//     callback(results);
+//   }; 
+// };

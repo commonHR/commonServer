@@ -40,9 +40,9 @@ app.use(function(req, res, next){
 
 // match.findMatches('RICEaaron', '{"latitude": "37.9841", "longitude": "-122.80699"}');
 
-// match.findMatches('marc0au', '{"latitude": "37.9841", "longitude": "-122.80699"}');
+//match.findMatches('marc0au', '{"latitude": "37.9841", "longitude": "-122.80699"}');
 
-// match.findMatches('RICEaaron', '{"latitude": "0", "longitude": "0"}');
+ // match.findMatches('elcinerkin', '{"latitude": "0", "longitude": "0"}');
 //location needs to be a JSON object or the database throws a fit
 
 
@@ -53,7 +53,7 @@ app.use(function(req, res, next){
 // });
 
 
-// twitter.getUserInfo('RICEaaron', '{"latitude": "37.9841", "longitude": "-122.80699"}');	
+ //twitter.getUserInfo('elcinerkin', '{"latitude": "37.9841", "longitude": "-122.80699"}');	
 
 // twitter.getUserInfo('RICEaaron', '{"latitude": "37.9841", "longitude": "-122.80699"}');	
 // twitter.getUserInfo('marc0au');

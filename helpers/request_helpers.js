@@ -28,6 +28,7 @@ exports.findMatches = function(request, response) {
   var maxTime = request.body.max_time;
 
   match.findMatches(screenName, currentLocation, maxDistance, maxTime, function(data){
+    console.log(data);
     response.send(200, data);
   });
 };
