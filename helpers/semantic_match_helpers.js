@@ -12,9 +12,11 @@ exports.retrieveUserDoc = function (screenName, matches) {
     var matchDocs = [];
     var docCount;
     var deferred = Q.defer();
+    var matchScreenName;
 
     _.each(matches, function(match) {
       
+      var matchScreenName = match.screen_name;
       var params = {
         'screen_name': match.screen_name
       };
@@ -35,14 +37,15 @@ exports.retrieveUserDoc = function (screenName, matches) {
             var matchDoc = {};
 
             if ( results.length !== 0 ) {
-              matchDoc = results[0].userDoc._data.data.user_doc;
-              matchDoc = JSON.parse(matchDoc);
-              docCount = results[0].count;
+              matchName = results[0].userDoc._data.data.user;
+              matchData = results[0].userDoc._data.data.user_doc;
+              matchData = JSON.parse(matchData);
+              matchDoc[matchName] = matchData;
             }
             matchDocs.push(matchDoc);
             count--;
             if ( count === 0) {
-              deferred.resolve(calculateStats(userDoc, matchDocs, corpus, docCount)); 
+              deferred.resolve(calculateStats(userDoc, matchDocs, corpus, docCount, matchScreenName)); 
             }
           }
         });

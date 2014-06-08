@@ -133,23 +133,18 @@ exports.findMatches = function(screenName, location, callback){
   var semanticRanking = function(screenName, matches, results) {
     //user plus match and result  
     count = 0;
-    //console.log('*******screenName', screenName, '******matches', matches, '******results', results);
     _.each(matches, function(match){
       var words = Object.keys(results[count][0]);
-      console.log('*****************match', match);
-      console.log('*****************words', words);
+      var commons = [];
       if(words.length>0){
-        var commons = [];
         _.each(words, function(word){
-          console.log('**********each word', word);
           if(word.length>4){
             commons.push(word);
           }
         });
-        commons = _.shuffle(commons);
-        console.log(commons);
-        matches[common_words] = commons;
       }
+      console.log(commons);
+      matches[common_words] = commons;
       count++;
     });
     console.log('matches common words', matches[common_words]);
