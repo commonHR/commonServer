@@ -7,9 +7,9 @@ exports.parseTweets = function(screenName, tweets) {
 
   var words = _.map(tweets, function(tweet){
     return tweet.text.toLowerCase().replace(/[^\w\s]/gi, '');
-  }).join(',').split(' ');
+  }).join(',').replace(/[^\w\s]/gi, ' ').split(' ');
   
-  var linkFilter = /^http?:/;
+  var linkFilter = /^http/;
 
   var commonWords = { the: true, be: true, and: true, of: true, a: true, in: true, to: true, have: true, it: true, I: true, that: true,
     for: true, you: true, he: true, with: true, on: true, do: true, say: true, this: true, they: true, at: true, but: true, we: true,
@@ -24,7 +24,7 @@ exports.parseTweets = function(screenName, tweets) {
   var filteredWords = [];
 
   _.each(words, function(word){
-    if ( !linkFilter.test(word) && !commonWords[word] ) {
+    if ( !linkFilter.test(word) && !commonWords[word] && word !== '') {
       filteredWords.push(word);
     }
   });

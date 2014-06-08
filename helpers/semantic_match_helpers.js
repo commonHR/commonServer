@@ -13,8 +13,6 @@ exports.retrieveUserDoc = function (screenName, matches) {
     var docCount;
     var deferred = Q.defer();
 
-    //console.log("match count", count);
-
     _.each(matches, function(match) {
       
       var params = {
@@ -27,7 +25,6 @@ exports.retrieveUserDoc = function (screenName, matches) {
        'MATCH (userDoc:Document {user: {screen_name}}), (corpus:Corpus)',
        'RETURN COUNT(document) as count, userDoc, corpus'
       ].join('\n');
-
 
       var queryMethod = function(){
 
