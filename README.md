@@ -16,10 +16,10 @@ The app uses Twitter login to get started. Based on the number of common friends
 Screenshots
 -----------
 Login with Twitter
-![](http://i58.tinypic.com/34sfhtu.png)
+![](http://i62.tinypic.com/35n3ex1.png)
 
 Match results
-![](http://i59.tinypic.com/2418j1e.png)
+![](http://i58.tinypic.com/2qmkn5k.png)
 
 Tech stack
 ----------
